@@ -1,6 +1,9 @@
 *.so
 *.la
 *.o
+*.a
+*.mexa64
+*.asv
 
 CMakeCache.txt
 CMakeFiles

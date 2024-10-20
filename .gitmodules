@@ -1,0 +1,3 @@
+[submodule "treefun"]
+	path = treefun
+	url = https://github.com/haiszhu/treefun.git
