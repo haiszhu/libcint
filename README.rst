@@ -4,6 +4,12 @@ libcint
 version 6.1.1
 2024-01-24
 
+* install: make
+
+* test: 
+
+  - matlab: matlab_eri_h2o_ccpvdz.m
+  - python: matlab_eri_h2o_ccpvdz.py
 
 What is libcint
 ---------------
