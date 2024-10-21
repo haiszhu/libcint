@@ -4,6 +4,10 @@ libcint
 version 6.1.1
 2024-01-24
 
+* clone: git clone --recursive https://github.com/haiszhu/libcint.git
+
+  - treefun: if already cloned, run git submodule update --init --recursive
+
 * install: make (1st time need to run mkdir bin before make)
 
   - bdmk: precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
