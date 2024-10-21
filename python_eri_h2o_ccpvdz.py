@@ -19,3 +19,11 @@ mol = gto.M(
 eri = mol.intor('int2e')
 print(eri)
 print(eri.shape)
+
+# Read ERI from Hai
+with h5py.File('ERI_h2o_ccpvdz.h5', 'r') as ar:
+    eri0 = ar['DS1'][()]
+
+diff = eri - eri0
+print("Maximum diff between two ERIs:")
+print(np.max(np.abs(diff)))

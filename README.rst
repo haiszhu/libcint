@@ -5,11 +5,13 @@ version 6.1.1
 2024-01-24
 
 * install: make
+  - bdmk: precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
 
 * test: 
 
-  - matlab: matlab_eri_h2o_ccpvdz.m
-  - python: matlab_eri_h2o_ccpvdz.py
+  - matlab: matlab_eri_h2o_ccpvdz.m  (computes ERI_h2o_ccpvdz.h5)
+  - python: matlab_eri_h2o_ccpvdz.py  (requires ERI_h2o_ccpvdz.h5 for verification)
+  - id: matlab_id.m  (learns id, and performs a few tests... seems ok with FLAM id)
 
 What is libcint
 ---------------
