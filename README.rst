@@ -5,6 +5,7 @@ version 6.1.1
 2024-01-24
 
 * install: make
+
   - bdmk: precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
 
 * test: 
