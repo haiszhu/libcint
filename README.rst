@@ -4,7 +4,7 @@ libcint
 version 6.1.1
 2024-01-24
 
-* install: make
+* install: make (1st time need to run mkdir bin before make)
 
   - bdmk: precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
 
