@@ -17,6 +17,7 @@ version 6.1.1
   - matlab: matlab_eri_h2o_ccpvdz.m  (computes ERI_h2o_ccpvdz.h5)
   - python: matlab_eri_h2o_ccpvdz.py  (requires ERI_h2o_ccpvdz.h5 for verification)
   - id: matlab_id.m  (learns id, and performs a few tests... seems ok with FLAM id)
+        matlab_id2.m (id on the transposed matrix, also seems ok, you need ~120gb ram, or batched fvals)
 
 What is libcint
 ---------------

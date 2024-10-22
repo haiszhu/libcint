@@ -46,8 +46,10 @@ Vijkl = Vijklcomp(Norb,ratio,fvals,nleafbox,srcleaf,wtsleaf,...
                 nboxes,nlevels,ltree,itree,iptr,centers,boxsize);
 
 save('ERI_h2o_ccpvdz.mat','Vijkl')    
-h5create("ERI_h2o_ccpvdz.h5","/DS1",[Norb Norb Norb Norb])
-h5write("ERI_h2o_ccpvdz.h5","/DS1",Vijkl)
-h5disp("ERI_h2o_ccpvdz.h5")
+if exist("ERI_h2o_ccpvdz.h5", 'file') ~= 2
+  h5create("ERI_h2o_ccpvdz.h5","/DS1",[Norb Norb Norb Norb])
+  h5write("ERI_h2o_ccpvdz.h5","/DS1",Vijkl)
+  h5disp("ERI_h2o_ccpvdz.h5")
+end
 
 keyboard
