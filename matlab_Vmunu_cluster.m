@@ -53,17 +53,17 @@ beta = 6.0d0;
 %                 nboxes,nlevels,ltree,itree,iptr,centers,boxsize);
 
 %
-idfname = 'isdf_1e-3.h5'; % 0.0026
+idfname{1} = 'isdf_1e-3.h5'; % 0.0026
 % idfname = 'isdf_1e-4.h5'; % 0.4476
-info = h5info(idfname);
-Np = h5read(idfname, '/Np');
-collocation_matrix = h5read(idfname, '/collocation_matrix');
-interpolating_points = h5read(idfname, '/interpolating_points');
-interpolating_vectors = h5read(idfname, '/interpolating_vectors');
-kpts = h5read(idfname, '/kpts');
-nkpts_ibz = h5read(idfname, '/nkpts_ibz');
-nqpts_ibz = h5read(idfname, '/nqpts_ibz');
-qpts = h5read(idfname, '/qpts');
+info = h5info(idfname{1});
+Np = h5read(idfname{1}, '/Np');
+collocation_matrix = h5read(idfname{1}, '/collocation_matrix');
+interpolating_points = h5read(idfname{1}, '/interpolating_points');
+interpolating_vectors = h5read(idfname{1}, '/interpolating_vectors');
+kpts = h5read(idfname{1}, '/kpts');
+nkpts_ibz = h5read(idfname{1}, '/nkpts_ibz');
+nqpts_ibz = h5read(idfname{1}, '/nqpts_ibz');
+qpts = h5read(idfname{1}, '/qpts');
   
 %
 collocation_matrix = squeeze(collocation_matrix(1,:,:));
@@ -197,10 +197,32 @@ for i = 1:Norb
   end
 end
 
-save('Vmunu_h2o_ccpvdz.mat','Vmunu')
-if exist("Vmunu_h2o_ccpvdz.h5", 'file') ~= 2
-  h5create("Vmunu_h2o_ccpvdz.h5","/DS1",[nd nd])
-  h5write("Vmunu_h2o_ccpvdz.h5","/DS1",Vmunu)
-  h5disp("Vmunu_h2o_ccpvdz.h5")
+% extra eps info in filename
+[~, idbasename, ~] = fileparts(idfname{1});
+eps_string = extractAfter(idbasename, '_'); 
+
+% save Vmunu to matlab .mat
+mat_filename = ['Vmunu_h2o_ccpvdz_eps_' eps_string '.mat'];
+save(mat_filename, 'Vmunu');
+
+% save Vmunu to .h5
+h5_filename = ['Vmunu_h2o_ccpvdz_eps_' eps_string '.h5'];
+if exist(h5_filename, 'file') ~= 2
+  h5create(h5_filename,"/DS1",[nd nd])
+  h5write(h5_filename,"/DS1",Vmunu)
+  h5disp(h5_filename)
 end
+
+% save Vijkl to matlab .mat
+eri_mat_filename = ['ERI_h2o_ccpvdz_eps_' eps_string '.mat'];
+save(eri_mat_filename,'Vijkl') 
+
+% save Vijkl to .h5
+eri_h5_filename = ['ERI_h2o_ccpvdz_eps_' eps_string '.h5'];
+if exist(eri_h5_filename, 'file') ~= 2
+  h5create(eri_h5_filename,"/DS1",[Norb Norb Norb Norb])
+  h5write(eri_h5_filename,"/DS1",Vijkl)
+  h5disp(eri_h5_filename)
+end
+
 % keyboard
