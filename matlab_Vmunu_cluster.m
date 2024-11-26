@@ -3,6 +3,12 @@
 % 
 % need to force matlab to use openblas...
 %
+% to submit a job
+% module load openblas
+% OPENBLAS_DIR=$(echo $PATH | tr ':' '\n' | grep "openblas")
+% OPENBLAS_LIB="$OPENBLAS_DIR/../lib/libopenblas.so"
+% LD_PRELOAD=$OPENBLAS_LIB matlab
+%
 % 11/26/24 Hai
 
 addpath('./utils/')
