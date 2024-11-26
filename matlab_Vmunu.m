@@ -198,4 +198,12 @@ if exist("Vmunu_h2o_ccpvdz.h5", 'file') ~= 2
   h5write("Vmunu_h2o_ccpvdz.h5","/DS1",Vmunu)
   h5disp("Vmunu_h2o_ccpvdz.h5")
 end
+
+save('ERI_h2o_ccpvdz.mat','Vijkl')    
+if exist("ERI_h2o_ccpvdz.h5", 'file') ~= 2
+  h5create("ERI_h2o_ccpvdz.h5","/DS1",[Norb Norb Norb Norb])
+  h5write("ERI_h2o_ccpvdz.h5","/DS1",Vijkl)
+  h5disp("ERI_h2o_ccpvdz.h5")
+end
+
 keyboard
