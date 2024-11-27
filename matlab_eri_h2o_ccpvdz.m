@@ -6,10 +6,10 @@ addpath('./utils/')
 addpath('./treefun/')
 
 clear all
-order = 7;
-% eps = 1e-03; 
+order = 8;
+eps = 1e-03; 
 % eps = 1e-04;
-eps = 1e-05;
+% eps = 1e-05;
 % eps = 1e-06;
 % eps = 1e-07;
 

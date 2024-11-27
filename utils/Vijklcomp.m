@@ -14,7 +14,9 @@ for k = 1:Norb
 end
 pot = zeros(nd,npbox,nboxes);
 nd0 = 10;
-nchnk = nd/nd0;
+nchnk = floor(nd/nd0);
+disp("=========Start BDMK=======");
+disp("nchnk is : " + nchnk );
 % for jchnk = 1:1
 for jchnk = 1:nchnk
   jidxv = (jchnk-1)*nd0 + (1:nd0);
@@ -36,7 +38,29 @@ for jchnk = 1:nchnk
            ifpghtarg,pote,grade,hesse,timeinfo);
   pot(jidxv,:,:) = pot0;
   time = toc;
+  disp("jchnk is : " + jchnk);
 end
+jchnk = nchnk + 1;
+jidxv = ((jchnk-1)*nd0+1):nd;
+nd0 = numel(jidxv);
+phi_kl0 = phi_kl(jidxv,:,:);
+pot0=zeros(nd0,npbox,nboxes);
+grad0=zeros(nd0,ndim,npbox,nboxes);
+hess0=zeros(nd0,nhess,npbox,nboxes);
+ifpgh=1;
+ifpghtarg=0;
+ntarg = 100;
+targs=zeros(ndim,ntarg); pote=zeros(nd0,ntarg);
+grade=zeros(nd0,ndim,ntarg); hesse=zeros(nd0,nhess,ntarg);
+timeinfo = zeros(20,1);
+[pot0,grad0,hess0,pote,grade,hesse] = ...
+bdmk_mex(nd0,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
+       nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl0, ...
+       ifpgh,pot0,grad0,hess0,ntarg,targs, ...
+       ifpghtarg,pote,grade,hesse,timeinfo);
+pot(jidxv,:,:) = pot0;
+disp("=========End BDMK=======");
+
 % ntot=npbox*nleafbox+ntarg*ifpghtarg;
 % X = [' ntotal= ',num2str(ntot)];
 % disp(X)
@@ -79,17 +103,28 @@ for ilev = 0:nlevels
 end
 
 %% compute smooth volume integral
+disp("=========Start Smooth Integral=======");
 % nd = nd0;
 Vijkl0 = zeros(nd,nd);
-% ell = 1;
+potleaf = reshape(potleaf,nd,[])/ratio^2; 
+phi_ij_leaf = reshape(phi_ij_leaf,nd,[]);
+wtsleaf = wtsleaf(:)';
 for ell = 1:nd
   % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
-  potleaf_ell = potleaf(ell,:,:)/ratio^2; 
-  for j = 1:nd
-    % (2*L)^3 * \int_{-1/2}^{1/2} phi_{ij} * pot_{kl} dV
-    Vijkl0(j,ell) = sum(squeeze(phi_ij_leaf(j,:,:).*potleaf_ell).*wtsleaf(:,:),'all')/ratio^3;
-  end
+  Vijkl0(:,ell) = phi_ij_leaf*(potleaf(ell,:).*wtsleaf)';
 end
+Vijkl0 = Vijkl0/ratio^3;
+% Vijkl0 = zeros(nd,nd);
+% % ell = 1;
+% for ell = 1:nd
+%   % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
+%   potleaf_ell = potleaf(ell,:,:)/ratio^2; 
+%   for j = 1:nd
+%     % (2*L)^3 * \int_{-1/2}^{1/2} phi_{ij} * pot_{kl} dV
+%     Vijkl0(j,ell) = sum(squeeze(phi_ij_leaf(j,:,:).*potleaf_ell).*wtsleaf(:,:),'all')/ratio^3;
+%   end
+% end
+disp("=========End Smooth Integral=======");
 
 % Vijkl = Vijkl0;
 % turn back into 4-tensor and save
