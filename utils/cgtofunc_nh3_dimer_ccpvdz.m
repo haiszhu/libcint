@@ -31,7 +31,7 @@ f = zeros([n1 n2 n3 nd]); % need to be changed later
 
 persistent ngrids shls_slice ao_loc non0tab atm bas env natm nbas nao triuidx triflag;
 if isempty(ngrids)
-  ngrids = 1; 
+  % ngrids = 1; 
   shls_slice = [0, 28];
   ao_loc = [ 0,  2,  3,  6,  9, 14, 15, 16, 19, 20, 21, 24, 25, 26, 29, 31, 32, 35, 38, 43, 44, 45, 48, 49, 50, 53, 54, 55, 58];
   non0tab = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
@@ -104,15 +104,27 @@ if isempty(ngrids)
   nao = ao_loc(shls_slice(2)+1) - ao_loc(shls_slice(1)+1);
 end
 
-% nx,ny,nz,nd
-for ix = 1:n1
-  for iy = 1:n2
-    for iz = 1:n3
-      xyz = [x(ix,iy,iz); y(ix,iy,iz); z(ix,iy,iz)];
-      fi = zeros(nd,1);
-      fi = GTOval_nh3_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
-      f(ix,iy,iz,:) = fi;
+if 1 % 2025 version
+  ngrids = n1*n2*n3;
+  xyz = [x(:), y(:), z(:)]';
+  xyz = xyz(:);
+  fi = zeros([ngrids nd]); 
+  fi = GTOval_nh3_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+  f = reshape(fi,[nd ngrids])';
+  f = reshape(f,[n1 n2 n3 nd]);
+end
+
+if 0 % naive version... pre 2025
+  ngrids = 1; 
+  % nx,ny,nz,nd
+  for ix = 1:n1
+    for iy = 1:n2
+      for iz = 1:n3
+        xyz = [x(ix,iy,iz); y(ix,iy,iz); z(ix,iy,iz)];
+        fi = zeros(nd,1);
+        fi = GTOval_nh3_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+        f(ix,iy,iz,:) = fi;
+      end
     end
   end
-end
 end

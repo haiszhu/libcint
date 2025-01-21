@@ -8,6 +8,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
 CC = gcc-14
 MEX = /Applications/MATLAB_R2023b.app/bin/mex
+MWRAP = ~/mwrap/mwrap
 LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
 CINTDLIBRARY_NAME = libcint.dylib
 NPHELPERDLIBRARY_NAME = libnp_helper.dylib

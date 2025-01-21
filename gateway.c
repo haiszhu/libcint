@@ -1430,8 +1430,8 @@ mw_err_label:
         mexErrMsgTxt(mw_err_txt_);
 }
 
-/* ---- gateway.mw: 40 ----
- * GTOval_nh3_dimer_ccpvdz_mwrap(int[1] ngrids, int[2] shls_slice, int[naoloc] ao_loc, inout double[ntmpao] ao, double[ndim] coord, int[nnon0tab] non0table, int[ntmpatm] atm, int[1] natm, int[ntmpbas] bas, int[1] nbas, double[nenv] env);
+/* ---- gateway.mw: 41 ----
+ * GTOval_nh3_dimer_ccpvdz_mwrap(int[1] ngrids, int[2] shls_slice, int[naoloc] ao_loc, inout double[ntmpao] ao, double[ndimngrids] coord, int[nnon0tab] non0table, int[ntmpatm] atm, int[1] natm, int[ntmpbas] bas, int[1] nbas, double[nenv] env);
  */
 static const char* stubids3_ = "GTOval_nh3_dimer_ccpvdz_mwrap(i int[x], i int[x], i int[x], io double[x], i double[x], i int[x], i int[x], i int[x], i int[x], i int[x], i double[x])";
 
@@ -1454,7 +1454,7 @@ void mexStub3(int nlhs, mxArray* plhs[],
     mwSize      dim12_;   /* 2          */
     mwSize      dim13_;   /* naoloc     */
     mwSize      dim14_;   /* ntmpao     */
-    mwSize      dim15_;   /* ndim       */
+    mwSize      dim15_;   /* ndimngrids */
     mwSize      dim16_;   /* nnon0tab   */
     mwSize      dim17_;   /* ntmpatm    */
     mwSize      dim18_;   /* 1          */
@@ -1650,7 +1650,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
             mexPrintf("Profiler inactive\n");
         mexPrintf("%d calls to gateway.mw:12\n", mexprofrecord_[1]);
         mexPrintf("%d calls to gateway.mw:26\n", mexprofrecord_[2]);
-        mexPrintf("%d calls to gateway.mw:40\n", mexprofrecord_[3]);
+        mexPrintf("%d calls to gateway.mw:41\n", mexprofrecord_[3]);
     } else if (strcmp(id, "*profile log*") == 0) {
         FILE* logfp;
         if (nrhs != 2 || mxGetString(prhs[1], id, sizeof(id)) != 0)
@@ -1662,7 +1662,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
             fprintf(logfp, "Profiler inactive\n");
         fprintf(logfp, "%d calls to gateway.mw:12\n", mexprofrecord_[1]);
         fprintf(logfp, "%d calls to gateway.mw:26\n", mexprofrecord_[2]);
-        fprintf(logfp, "%d calls to gateway.mw:40\n", mexprofrecord_[3]);
+        fprintf(logfp, "%d calls to gateway.mw:41\n", mexprofrecord_[3]);
         fclose(logfp);
     } else
         mexErrMsgTxt("Unknown identifier");
