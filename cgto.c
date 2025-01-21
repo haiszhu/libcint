@@ -20,3 +20,13 @@ void GTOval_h2o_ccpvtz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
     GTOval_sph(*ngrids, shls_slice, ao_loc, ao, coord, non0tab_uint8, atm, *natm, bas, *nbas, env);
 
 }
+
+void GTOval_nh3_dimer_ccpvdz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
+                      double *ao, double *coord, int *non0tab,
+                      int *atm, int *natm, int *bas, int *nbas, double *env) {
+    uint8_t non0tab_uint8[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // TODO: change to uint8_t
+    GTOval_sph(*ngrids, shls_slice, ao_loc, ao, coord, non0tab_uint8, atm, *natm, bas, *nbas, env);
+
+}
+
+
