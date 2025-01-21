@@ -1,5 +1,6 @@
-function f = cgtofunc_nh3_dimer_ccpvdz(x,y,z)
+function f = cgto2func_nh3_dimer_ccpvdz(x,y,z)
 % implement cgto, which calls libcint, libcgto, np_helper, etc...
+% phi_k * phi_l, totoal Norb^2, we store about half of it
 % 
 %
 % nh3_dimer, ccpvdz
@@ -22,10 +23,11 @@ function f = cgtofunc_nh3_dimer_ccpvdz(x,y,z)
 % use parameters from pyscf/pyscf/gto/eval_gto.py
 % 
 %
-% 01/19/25 Hai
+% 01/21/25 Hai
 
 % respect the shape of input variables
-nd = 58;
+Norb = 58;
+nd = Norb*(Norb+1)/2;
 [n1,n2,n3] = size(x);
 f = zeros([n1 n2 n3 nd]); % need to be changed later
 
@@ -102,28 +104,48 @@ if isempty(ngrids)
   natm = numel(atm)/6;
   nbas = numel(bas)/8;
   nao = ao_loc(shls_slice(2)+1) - ao_loc(shls_slice(1)+1);
+  triuidx = 1:Norb^2;
+  triflag = true(Norb,Norb);
+  triflag = triu(triflag);
+  triuidx = triuidx(triflag(:));
 end
 
 if 1 % 2025 version
   ngrids = n1*n2*n3;
   xyz = [x(:), y(:), z(:)]';
   xyz = xyz(:);
-  fi = zeros([nd ngrids]); 
+  fi = zeros([Norb ngrids]); 
   fi = GTOval_nh3_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
-  f = reshape(fi,[nd ngrids])';
-  f = reshape(f,[n1 n2 n3 nd]);
-end
+  fi = reshape(fi,[Norb ngrids]);
+  
+  if 0 % naive version
+    ftmp = zeros([ngrids nd]); % need to be changed later
+    for k=1:ngrids
+      fij = fi(:,k).*fi(:,k)';
+      ftmp(k,:) = fij(triuidx);
+    end
+    f = reshape(ftmp,[n1 n2 n3 nd]);
+  end
 
+  % these will dominate due to ^2 scaling...
+  firs = reshape(fi, [Norb, 1, ngrids]);
+  fij_full = pagemtimes(firs, permute(firs, [2, 1, 3])); 
+  ftmp = reshape(fij_full,[Norb^2 ngrids]);
+  ftmp = ftmp(triuidx,:)';
+  f = reshape(ftmp,[n1 n2 n3 nd]);
+end  
+
+% nx,ny,nz,nd
 if 0 % naive version... pre 2025
   ngrids = 1; 
-  % nx,ny,nz,nd
   for ix = 1:n1
     for iy = 1:n2
       for iz = 1:n3
         xyz = [x(ix,iy,iz); y(ix,iy,iz); z(ix,iy,iz)];
-        fi = zeros(nd,1);
+        fi = zeros(Norb,1);
         fi = GTOval_nh3_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
-        f(ix,iy,iz,:) = fi;
+        fij = fi(:).*fi(:)';
+        f(ix,iy,iz,:) = fij(triuidx);
       end
     end
   end

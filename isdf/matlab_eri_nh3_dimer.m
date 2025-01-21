@@ -12,7 +12,7 @@ addpath('../treefun/')
 clear all
 order = 7;
 eps = 1e-03; % 
-eps = 1e-05; % 
+eps = 1e-04; % 
 
 % create some verification mesh, supposedly to be the same as python_eri_nh3_dimer.py
 % run python_eri_nh3_dimer.py to load x,y,z coordinates and basis from pyscf
@@ -30,8 +30,8 @@ end
 % keyboard
 
 %%% resolve tree on cgto^2
-% func2 = @(x,y,z) cgto2func_h2o_ccpvtz(x,y,z);
-func2 = @(x,y,z) cgtofunc_nh3_dimer_ccpvdz(x,y,z);
+func2 = @(x,y,z) cgto2func_nh3_dimer_ccpvdz(x,y,z);
+% func2 = @(x,y,z) cgtofunc_nh3_dimer_ccpvdz(x,y,z);
 checkpts = [
           -1.578718  -0.046611   0.000000;... 
           -2.158621   0.136396  -0.809565;...
