@@ -19,4 +19,8 @@ void GTOval_nh3_dimer_ccpvdz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
                       double *ao, double *coord, int *non0table,
                       int *atm, int *natm, int *bas, int *nbas, double *env);
 
+void GTOval_h2o_dimer_ccpvdz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
+                      double *ao, double *coord, int *non0table,
+                      int *atm, int *natm, int *bas, int *nbas, double *env);
+
 #endif // CGTO_H
