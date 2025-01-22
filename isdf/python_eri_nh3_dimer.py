@@ -36,5 +36,18 @@ xyz = np.column_stack([x.flatten(order='F'),y.flatten(order='F'),z.flatten(order
 # Evaluate GTOs at the specified points
 vals = np.array(mol_nh3_dimer.eval_gto('GTOval_sph',xyz))
 print(vals.shape)
-
 savemat("nh3_dimer_basis_check.mat", {'x': x, 'y': y, 'z': z, 'xyz': xyz, 'vals': vals})
+
+# Calculate ERI for a given molecule and a AO basis: 
+# eri has dimenions (nao, nao, nao, nao) where nao is the number of AO basis functions
+eri = mol_nh3_dimer.intor('int2e')
+print(eri)
+print(eri.shape)
+
+# Read ERI from Hai
+with h5py.File('ERI_nh3_dimer_ccpvdz_1e-03.h5', 'r') as ar:
+    eri0 = ar['DS1'][()]
+
+diff = eri - eri0
+print("Maximum diff between two ERIs:")
+print(np.max(np.abs(diff)))
