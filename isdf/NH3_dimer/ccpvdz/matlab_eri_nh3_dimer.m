@@ -79,9 +79,9 @@ h5_filename = sprintf('ERI_nh3_dimer_ccpvdz_%s.h5', eps_str);
 save(mat_filename,'Vijkl')    
 if exist(h5_filename, 'file') ~= 2
   h5create(h5_filename,"/DS1",[Norb Norb Norb Norb])
-  h5write(h5_filename,"/DS1",Vijkl)
-  h5disp(h5_filename)
 end
+h5write(h5_filename,"/DS1",Vijkl)
+h5disp(h5_filename)
 
 % profile viewer
 

@@ -109,9 +109,11 @@ Vijkl0 = zeros(nd,nd);
 potleaf = reshape(potleaf,nd,[])/ratio^2; 
 phi_ij_leaf = reshape(phi_ij_leaf,nd,[]);
 wtsleaf = wtsleaf(:)';
+disp("nd is : " + nd );
 for ell = 1:nd
   % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
   Vijkl0(:,ell) = phi_ij_leaf*(potleaf(ell,:).*wtsleaf)';
+  disp("ell is : " + ell);
 end
 Vijkl0 = Vijkl0/ratio^3;
 % Vijkl0 = zeros(nd,nd);
