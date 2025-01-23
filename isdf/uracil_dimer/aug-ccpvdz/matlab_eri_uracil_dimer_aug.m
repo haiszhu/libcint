@@ -1,6 +1,6 @@
 %
 %
-% 01/20/25 Hai
+% 01/23/25 Hai
 
 % profile clear
 % profile on
@@ -18,21 +18,21 @@ eps = 1e-03; %
 % create some verification mesh, supposedly to be the same as python_eri_h2o_dimer.py
 % run python_eri_h2o_dimer.py to load x,y,z coordinates and basis from pyscf
 if 1
-  load('uracil_dimer_basis_check.mat')
+  load('uracil_dimer_aug_basis_check.mat')
   [x2, y2, z2] = ndgrid(linspace(0,1,5), linspace(0,1,5), linspace(0,1,5));
   xyz2 = [x2(:) y2(:) z2(:)];
-  func = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
+  func = @(x,y,z) cgtofunc_uracil_dimer_aug_ccpvdz(x,y,z);
   vals2 = func(x2, y2, z2);
-  vals2rs = reshape(vals2,[],264);
-  diff = abs(vals - reshape(vals2rs,[],264));
+  vals2rs = reshape(vals2,[],440);
+  diff = abs(vals - reshape(vals2rs,[],440));
   max(diff(:))
 end
 
 % keyboard
 
 %%% resolve tree on cgto^2
-func2 = @(x,y,z) cgto2func_uracil_dimer_ccpvdz(x,y,z);
-% func2 = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
+func2 = @(x,y,z) cgto2func_uracil_dimer_aug_ccpvdz(x,y,z);
+% func2 = @(x,y,z) cgtofunc_uracil_dimer_aug_ccpvdz(x,y,z);
 checkpts = [
         -1.4663316    1.0121693    0.0000000;... 
         -0.6281464    1.9142678    0.0000000;... 
@@ -67,7 +67,7 @@ f = treefun3(func2,[-15 15 -15 15 -15 15],order,opts);
 plot(f,func2);
 
 %%% treefun to bdmk
-Norb = 264;
+Norb = 440;
 ndim = 3;
 ratio = 0.5/15; % from boxlen to 1
 ipoly = 0;
@@ -75,7 +75,7 @@ ipoly = 0;
 
 %%% eval cgto
 src0 = src/ratio;
-func = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
+func = @(x,y,z) cgto2func_uracil_dimer_aug_ccpvdz(x,y,z);
 fvals0 = squeeze(func(squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:))));
 fvals0 = permute(fvals0,[3 1 2]);
 fvals = fvals0;
@@ -90,8 +90,8 @@ Vijkl = Vijklcomp(Norb,ratio,fvals,nleafbox,srcleaf,wtsleaf,...
 
 %%% save data
 eps_str = sprintf('%.0e', eps);
-mat_filename = sprintf('ERI_uracil_dimer_ccpvdz_%s.mat', eps_str);
-h5_filename = sprintf('ERI_uracil_dimer_ccpvdz_%s.h5', eps_str);
+mat_filename = sprintf('ERI_uracil_dimer_aug_ccpvdz_%s.mat', eps_str);
+h5_filename = sprintf('ERI_uracil_dimer_aug_ccpvdz_%s.h5', eps_str);
 save(mat_filename,'Vijkl')    
 if exist(h5_filename, 'file') ~= 2
   h5create(h5_filename,"/DS1",[Norb Norb Norb Norb])
