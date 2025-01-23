@@ -63,4 +63,18 @@ void GTOval_h2o_dimer_ccpvdz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
 
 }
 
+void GTOval_h2o_dimer_aug_ccpvdz_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
+                      double *ao, double *coord, int *non0tab,
+                      int *atm, int *natm, int *bas, int *nbas, double *env) {
+    uint8_t non0tab_uint8[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // TODO: change to uint8_t
+    int nao = ao_loc[shls_slice[1]] - ao_loc[shls_slice[0]];
+    #pragma omp parallel for
+    for (int i = 0; i < *ngrids; i++) {
+      double *current_coord = &coord[i * 3];
+      double *current_ao = &ao[i * nao];
+      GTOval_sph(1, shls_slice, ao_loc, current_ao, current_coord, non0tab_uint8, atm, *natm, bas, *nbas, env);
+    }
+
+}
+
 
