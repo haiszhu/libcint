@@ -9,3 +9,9 @@ CMakeCache.txt
 CMakeFiles
 Makefile
 cmake_install.cmake
+
+*.DS_Store
+*.mat
+*.h5
+*.dylib
+untitled*
