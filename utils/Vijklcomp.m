@@ -4,14 +4,16 @@ function Vijkl = Vijklcomp(Norb,ratio,fvals,nleafbox,srcleaf,wtsleaf,...
 nhess = ndim*(ndim+1)/2;
 %%% based on fvals for all cGTOs, compute phi_k(r')*phi_l(r'), and singular volume integral
 nd = Norb*(Norb+1)/2;
-phi_kl = zeros(nd,npbox,nboxes); 
+phi_kl = zeros(nd,npbox*nboxes); 
 idx = 0;
+disp("=========Start phi_kl=======");
+disp("nd is : " + nd );
+fvals_rs = reshape(fvals,[Norb npbox*nboxes]);
 for k = 1:Norb
-  for ell = k:Norb
-    idx = idx + 1;
-    phi_kl(idx,:,:) = fvals(k,:,:).*fvals(ell,:,:);
-  end
+  phi_kl(idx+(1:Norb-k+1),:) = fvals_rs(k,:).*fvals_rs(k:Norb,:);
+  disp("k in phi_kl is : " + k + " ( total Norb is : " + Norb + " )");
 end
+phi_kl = reshape(phi_kl,nd,npbox,nboxes);
 pot = zeros(nd,npbox,nboxes);
 nd0 = 10;
 nchnk = floor(nd/nd0);
@@ -38,7 +40,7 @@ for jchnk = 1:nchnk
            ifpghtarg,pote,grade,hesse,timeinfo);
   pot(jidxv,:,:) = pot0;
   time = toc;
-  disp("jchnk is : " + jchnk);
+  disp("jchnk is : " + jchnk + " ( total nchnk is : " + nchnk + " )");
 end
 jchnk = nchnk + 1;
 jidxv = ((jchnk-1)*nd0+1):nd;
@@ -113,7 +115,7 @@ disp("nd is : " + nd );
 for ell = 1:nd
   % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
   Vijkl0(:,ell) = phi_ij_leaf*(potleaf(ell,:).*wtsleaf)';
-  disp("ell is : " + ell);
+  disp("ell is : " + ell + " ( total nd is : " + nd + " )");
 end
 Vijkl0 = Vijkl0/ratio^3;
 % Vijkl0 = zeros(nd,nd);

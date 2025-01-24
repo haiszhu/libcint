@@ -15,6 +15,9 @@ eps = 1e-03; %
 % eps = 1e-04; %
 % eps = 1e-05;
 
+order = 6;
+eps = 1e-03;
+
 % create some verification mesh, supposedly to be the same as python_eri_h2o_dimer.py
 % run python_eri_h2o_dimer.py to load x,y,z coordinates and basis from pyscf
 if 1
@@ -31,8 +34,8 @@ end
 % keyboard
 
 %%% resolve tree on cgto^2
-func2 = @(x,y,z) cgto2func_uracil_dimer_ccpvdz(x,y,z);
-% func2 = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
+% func2 = @(x,y,z) cgto2func_uracil_dimer_ccpvdz(x,y,z);
+func2 = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
 checkpts = [
         -1.4663316    1.0121693    0.0000000;... 
         -0.6281464    1.9142678    0.0000000;... 
@@ -64,7 +67,7 @@ opts = struct('balance',true,...
               'checkpts',checkpts, ... 
               'ifcoeffs',false);
 f = treefun3(func2,[-15 15 -15 15 -15 15],order,opts); 
-plot(f,func2);
+% plot(f,func2);
 
 %%% treefun to bdmk
 Norb = 264;
@@ -79,6 +82,15 @@ func = @(x,y,z) cgtofunc_uracil_dimer_ccpvdz(x,y,z);
 fvals0 = squeeze(func(squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:))));
 fvals0 = permute(fvals0,[3 1 2]);
 fvals = fvals0;
+
+%%% save src
+eps_str = sprintf('%.0e', eps);
+h5_filename = sprintf('src_uracil_dimer_ccpvdz_%s.h5', eps_str);
+if exist(h5_filename, 'file') ~= 2
+  h5create(h5_filename,"/DS1",[3 npbox nboxes])
+end
+h5write(h5_filename,"/DS1",src)
+h5disp(h5_filename)
 
 %%% compute V_ijkl
 nd = Norb*(Norb+1)/2;
@@ -101,4 +113,4 @@ h5disp(h5_filename)
 
 % profile viewer
 
-keyboard
+% keyboard
