@@ -11,9 +11,21 @@ disp("nd is : " + nd );
 fvals_rs = reshape(fvals,[Norb npbox*nboxes]);
 for k = 1:Norb
   phi_kl(idx+(1:Norb-k+1),:) = fvals_rs(k,:).*fvals_rs(k:Norb,:);
+  idx = idx + (Norb-k+1);
   disp("k in phi_kl is : " + k + " ( total Norb is : " + Norb + " )");
 end
 phi_kl = reshape(phi_kl,nd,npbox,nboxes);
+if 0 % naive pre 2025
+  phi_kl = zeros(nd,npbox,nboxes); 
+  for k = 1:Norb
+    for ell = k:Norb
+      idx = idx + 1;
+      phi_kl(idx,:,:) = fvals(k,:,:).*fvals(ell,:,:);
+    end
+  end
+end
+disp("=========End phi_kl=======");
+
 pot = zeros(nd,npbox,nboxes);
 nd0 = 10;
 nchnk = floor(nd/nd0);
@@ -107,17 +119,26 @@ end
 %% compute smooth volume integral
 disp("=========Start Smooth Integral=======");
 % nd = nd0;
-Vijkl0 = zeros(nd,nd);
 potleaf = reshape(potleaf,nd,[])/ratio^2; 
 phi_ij_leaf = reshape(phi_ij_leaf,nd,[]);
 wtsleaf = wtsleaf(:)';
+phi_ij_leaf = phi_ij_leaf.*wtsleaf;
 disp("nd is : " + nd );
-for ell = 1:nd
-  % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
-  Vijkl0(:,ell) = phi_ij_leaf*(potleaf(ell,:).*wtsleaf)';
-  disp("ell is : " + ell + " ( total nd is : " + nd + " )");
-end
+Vijkl0 = phi_ij_leaf*potleaf';
 Vijkl0 = Vijkl0/ratio^3;
+if 0 % old version pre 2025
+  Vijkl0 = zeros(nd,nd);
+  potleaf = reshape(potleaf,nd,[])/ratio^2; 
+  phi_ij_leaf = reshape(phi_ij_leaf,nd,[]);
+  wtsleaf = wtsleaf(:)';
+  disp("nd is : " + nd );
+  for ell = 1:nd
+    % (2*L)^2 * potleaf = (2*L)^2 * \int_{-1/2}^{1/2} (phi_k*phi_l)/|r' - r| dV
+    Vijkl0(:,ell) = phi_ij_leaf*(potleaf(ell,:).*wtsleaf)';
+    disp("ell is : " + ell + " ( total nd is : " + nd + " )");
+  end
+  Vijkl0 = Vijkl0/ratio^3;
+end
 % Vijkl0 = zeros(nd,nd);
 % % ell = 1;
 % for ell = 1:nd
