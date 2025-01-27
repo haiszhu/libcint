@@ -78,7 +78,7 @@ ipoly = 0;
 
 %%% eval cgto
 src0 = src/ratio;
-func = @(x,y,z) cgto2func_uracil_dimer_aug_ccpvdz(x,y,z);
+func = @(x,y,z) cgtofunc_uracil_dimer_aug_ccpvdz(x,y,z);
 fvals0 = squeeze(func(squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:))));
 fvals0 = permute(fvals0,[3 1 2]);
 fvals = fvals0;
