@@ -3,10 +3,29 @@
 # this is fine...
 # 
 
+import os
+import re
 import numpy
 import scipy.special
+from os.path import join
 from pyscf import gto
 from pyscf.gto.mole import format_atom
+from pyscf import __config__
+from pyscf.data.elements import ELEMENTS, ELEMENTS_PROTON, _std_symbol
+from pyscf.lib.exceptions import BasisNotFoundError
+
+ALIAS = {
+    'ccpvdz'     : 'cc-pvdz.dat'    ,
+    'ccpvtz'     : 'cc-pvtz.dat'    ,
+    'ccpvqz'     : 'cc-pvqz.dat'    ,
+    'ccpv5z'     : 'cc-pv5z.dat'    ,
+    'ccpvdpdz'   : 'cc-pvdpdz.dat'  ,
+    'augccpvdz'  : 'aug-cc-pvdz.dat',
+    'augccpvtz'  : 'aug-cc-pvtz.dat',
+    'augccpvqz'  : 'aug-cc-pvqz.dat',
+    'augccpv5z'  : 'aug-cc-pv5z.dat',
+    'augccpvdpdz': 'aug-cc-pvdpdz.dat',
+}
 
 ELEMENTS = [
     'X',  # Ghost
@@ -71,20 +90,111 @@ NUC_GAUSS = 2
 NUC_FRAC_CHARGE = 3
 NUC_ECP = 4  # atoms with pseudo potential
 
+BASE = getattr(__config__, 'BASE', 0)
+NORMALIZE_GTO = getattr(__config__, 'NORMALIZE_GTO', True)
+DISABLE_EVAL = getattr(__config__, 'DISABLE_EVAL', False)
+ARGPARSE = getattr(__config__, 'ARGPARSE', False)
+
+BASIS_SET_DELIMITER = re.compile('# *BASIS SET.*\n|END\n')
+
+MAXL = 15
+SPDF = 'SPDFGHIKLMNORTU'
+MAPSPDF = {key: l for l, key in enumerate(SPDF)}
+
+_BASIS_DIR = os.path.dirname(__file__)
+
+def load(basisfile, symb, optimize=True): # load of parse_nwchem.py inside pyscf/gto/basis
+    '''Load basis for atom of symb from file'''
+    symb = _std_symbol(symb)
+    with open(basisfile, 'r') as fin:
+        fdata = re.split(BASIS_SET_DELIMITER, fin.read())
+    raw_basis0 = ''
+    for dat in fdata:
+        dat0 = dat.split(None, 1)
+        if dat0 and dat0[0] == symb:
+            raw_basis0 = dat
+            break
+    raw_basis = [x for x in raw_basis0.splitlines() if x and 'END' not in x]
+    # basis_sorted = _parse(raw_basis, optimize)
+    basis_parsed = [[] for l in range(MAXL)]
+    key = None
+    for line in raw_basis:
+        dat = line.strip()
+        if dat[0].isalpha():
+            keys = dat.split()
+            if len(keys) == 1:
+                key = keys[0].upper()
+            else:
+                key = keys[1].upper()
+            if key == 'SP':
+                basis_parsed[0].append([0])
+                basis_parsed[1].append([1])
+            elif key in MAPSPDF:
+                l = MAPSPDF[key]
+                current_basis = [l]
+                basis_parsed[l].append(current_basis)
+        else:
+            dat = dat.replace('D','e').split()
+            try:
+                dat = [float(x) for x in dat]
+            except ValueError:
+                if DISABLE_EVAL:
+                    raise ValueError('Failed to parse %s' % line)
+                else:
+                    dat = list(eval(','.join(dat)))
+            except Exception as e:
+                raise BasisNotFoundError('\n' + str(e) +
+                                         '\nor the required basis file not existed.')
+            if key is None:
+                raise BasisNotFoundError('Not basis data')
+            elif key == 'SP':
+                basis_parsed[0][-1].append([dat[0], dat[1]])
+                basis_parsed[1][-1].append([dat[0], dat[2]])
+            else:
+                current_basis.append(dat)
+    basis_sorted = [b for bs in basis_parsed for b in bs]
+    
+    new_basis = []
+    for b in basis_sorted:
+        if isinstance(b[1], int):  # kappa = b[1]
+            key = list(b[:2])
+            ec = b[2:]
+        else:
+            key = list(b[:1])
+            ec = b[1:]
+
+        new_ec = [e_c for e_c in ec if any(c!=0 for c in e_c[1:])]
+        if new_ec:
+            new_basis.append(key + new_ec)
+    return new_basis
+
+# geom='''
+#     N  -1.578718  -0.046611   0.000000 
+#     H  -2.158621   0.136396  -0.809565
+#     H  -2.158621   0.136396   0.809565
+#     H  -0.849471   0.658193   0.000000
+#     N   1.578718   0.046611   0.000000
+#     H   2.158621  -0.136396  -0.809565
+#     H   0.849471  -0.658193   0.000000
+#     H   2.158621  -0.136396   0.809565
+#     '''
+
 geom='''
-N  -1.578718  -0.046611   0.000000 
-H  -2.158621   0.136396  -0.809565
-H  -2.158621   0.136396   0.809565
-H  -0.849471   0.658193   0.000000
-N   1.578718   0.046611   0.000000
-H   2.158621  -0.136396  -0.809565
-H   0.849471  -0.658193   0.000000
-H   2.158621  -0.136396   0.809565
-'''
+    O  -1.551007  -0.114520   0.000000
+    H  -1.934259   0.762503   0.000000
+    H  -0.599677   0.040712   0.000000
+    O   1.350625   0.111469   0.000000
+    H   1.680398  -0.373741  -0.758561
+    H   1.680398  -0.373741   0.758561
+    '''
+
+# basis = 'ccpvdz'
+basis = 'aug-ccpvdz'    
+
 mol = gto.M(
     verbose=7, 
     atom=geom, 
-    basis='ccpvdz')
+    basis=basis)
 
 atm = numpy.asarray(mol._atm, dtype=numpy.int32, order='C')
 bas = numpy.asarray(mol._bas, dtype=numpy.int32, order='C')
@@ -104,8 +214,15 @@ atoms_list_bohr = format_atom(atoms_list, unit='Angstrom')
 
 unique_elems = set(a[0] for a in atoms_list_bohr)
 basis_dict = {}
+filename_or_basisname = basis
+optimize = False
 for elem in unique_elems:
-    basis_dict[elem] = gto.basis.load('ccpvdz', elem)
+    symb = "".join([i for i in elem if i.isalpha()])
+    contr_scheme = 'Full'
+    name = filename_or_basisname.lower().replace('-', '').replace('_', '').replace(' ', '')
+    basis_dir = os.path.abspath(f'{_BASIS_DIR}/basis')
+    basmod = ALIAS[name]
+    basis_dict[elem] = load(join(basis_dir, basmod), symb, optimize)
     
 pre_env=numpy.zeros(PTR_ENV_START, dtype=float)
 
