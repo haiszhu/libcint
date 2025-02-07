@@ -11,8 +11,7 @@ from os.path import join
 from pyscf import gto
 from pyscf.gto.mole import format_atom
 from pyscf import __config__
-from pyscf.data.elements import ELEMENTS, ELEMENTS_PROTON, _std_symbol
-from pyscf.lib.exceptions import BasisNotFoundError
+from pyscf.data.elements import ELEMENTS, ELEMENTS_PROTON
 
 ALIAS = {
     'ccpvdz'     : 'cc-pvdz.dat'    ,
@@ -101,11 +100,16 @@ MAXL = 15
 SPDF = 'SPDFGHIKLMNORTU'
 MAPSPDF = {key: l for l, key in enumerate(SPDF)}
 
+_ELEMENTS_UPPER = {x.upper(): x for x in ELEMENTS}
+_ELEMENTS_UPPER['GHOST'] = 'Ghost'
+
 _BASIS_DIR = os.path.dirname(__file__)
 
 def load(basisfile, symb, optimize=True): # load of parse_nwchem.py inside pyscf/gto/basis
     '''Load basis for atom of symb from file'''
-    symb = _std_symbol(symb)
+    rawsymb = str(symb.upper())
+    symb = _ELEMENTS_UPPER[rawsymb]
+    
     with open(basisfile, 'r') as fin:
         fdata = re.split(BASIS_SET_DELIMITER, fin.read())
     raw_basis0 = ''
@@ -142,12 +146,7 @@ def load(basisfile, symb, optimize=True): # load of parse_nwchem.py inside pyscf
                     raise ValueError('Failed to parse %s' % line)
                 else:
                     dat = list(eval(','.join(dat)))
-            except Exception as e:
-                raise BasisNotFoundError('\n' + str(e) +
-                                         '\nor the required basis file not existed.')
-            if key is None:
-                raise BasisNotFoundError('Not basis data')
-            elif key == 'SP':
+            if key == 'SP':
                 basis_parsed[0][-1].append([dat[0], dat[1]])
                 basis_parsed[1][-1].append([dat[0], dat[2]])
             else:
