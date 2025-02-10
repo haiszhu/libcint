@@ -4,6 +4,8 @@ function mol = gto(atom,basis)
 %
 % 02/10/25, Hai
 
+BLKSIZE = 56;
+
 % constants in Python code
 CHARGE_OF   = 1; % indexing +1
 PTR_COORD   = 2;
@@ -199,8 +201,26 @@ end
 bas = vertcat(basBlocks{:});
 
 %
+ao_loc = make_loc(bas, 'sph');
+natm = size(atm,1);
+nbas = size(bas,1);
+
+% num of grid points to be evaluated..., for simplicity, start with 1
+ngrids = 1;
+non0tab = ones( floor((ngrids + BLKSIZE - 1) / BLKSIZE), nbas);
+
+%
 mol = [];
 mol.atm = atm;
 mol.bas = bas;
 mol.env = env;
+%
+mol.ao_loc = ao_loc;
+mol.natm = natm;
+mol.nbas = nbas;
+mol.shls_slice = [0, nbas];
+%
+mol.ngrids = 1;
+mol.non0tab = non0tab;
+
 end

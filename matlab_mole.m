@@ -17,7 +17,7 @@ geom = sprintf([ ...
 
 % mol
 basmod = 'cc-pvdz.dat';
-basmod = 'aug-cc-pvdz.dat';
+% basmod = 'aug-cc-pvdz.dat';
 basis = fullfile(fileparts(mfilename('fullpath')), 'basis', basmod);
 mol = gto(geom,basis);
 
@@ -25,7 +25,8 @@ mol = gto(geom,basis);
 mol.atm
 mol.bas
 reshape(mol.env,4,[])'
-
+mol.ao_loc
+mol.non0tab
 
 keyboard
 
