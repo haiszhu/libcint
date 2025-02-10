@@ -24,9 +24,10 @@ mol = gto(geom,basis);
 % atm, bas, env
 mol.atm
 mol.bas
-reshape(mol.env,4,[])'
+reshape([mol.env NaN(1,ceil(numel(mol.env)/4)*4 - numel(mol.env))],4,[])' % just for printing
 mol.ao_loc
 mol.non0tab
+mol.nao_nr
 
 keyboard
 

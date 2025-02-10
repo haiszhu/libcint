@@ -13,6 +13,10 @@ NUC_MOD_OF  = 3;
 PTR_ZETA    = 4;
 ATM_SLOTS   = 6; 
 ATOM_OF     = 1; % indexing +1
+ANG_OF      = 2; % ...
+NPRIM_OF    = 3; % ...
+NCTR_OF     = 4; % ...
+% pointer to env
 PTR_ENV_START   = 20;
 %
 NUC_POINT   = 1;
@@ -209,6 +213,9 @@ nbas = size(bas,1);
 ngrids = 1;
 non0tab = ones( floor((ngrids + BLKSIZE - 1) / BLKSIZE), nbas);
 
+% total number of contracted GTOs for the given mol object
+nao_nr = sum((bas(:,ANG_OF) * 2 + 1) .* bas(:,NCTR_OF));
+
 %
 mol = [];
 mol.atm = atm;
@@ -222,5 +229,7 @@ mol.shls_slice = [0, nbas];
 %
 mol.ngrids = 1;
 mol.non0tab = non0tab;
+%
+mol.nao_nr = nao_nr;
 
 end
