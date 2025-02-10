@@ -4,6 +4,8 @@ function mol = gto(atom,basis)
 %
 % 02/10/25, Hai
 
+global ANG_OF NCTR_OF
+
 BLKSIZE = 56;
 
 % constants in Python code
@@ -67,7 +69,7 @@ end
 
 % load(basisfile, symb, optimize...)
 all_symbols = atoms_list_bohr(:,1);    
-unique_elems = unique(all_symbols);   
+unique_elems = unique(all_symbols, 'stable');   
 
 % create an empty containers.Map for the final basis_dict
 basis_dict = containers.Map('KeyType','char', 'ValueType','any');
@@ -121,7 +123,8 @@ if isa(basis_dict, 'struct')
   isMapInput = false;
 else
   % if basis_dict is a containers.Map
-  allSymbols = keys(basis_dict);
+  % allSymbols = keys(basis_dict);
+  allSymbols = unique_elems; % respect key order in specified geo...
   isMapInput = true;
 end
 % 
@@ -177,7 +180,8 @@ for iSym = 1:numel(allSymbols)
       cs(:,ic) = cs(:,ic) * scales(ic);
     end
 
-    env0 = [env0, [ reshape(es,1,[]), reshape(cs.',1,[]) ]];  
+    env0 = [env0, [ reshape(es,1,[]), reshape(cs,1,[]) ]]; % env0.append(es) then env0.append(cs.T.reshape(-1))
+                                                           % cs is column wise in python... 
     ptr_exp = ptr_env0;                
     ptr_coeff = ptr_exp + nprim;         
     ptr_env0 = ptr_coeff + nprim*nctr;  
@@ -208,6 +212,7 @@ bas = vertcat(basBlocks{:});
 ao_loc = make_loc(bas, 'sph');
 natm = size(atm,1);
 nbas = size(bas,1);
+shls_slice = [0, nbas];
 
 % num of grid points to be evaluated..., for simplicity, start with 1
 ngrids = 1;
@@ -225,11 +230,90 @@ mol.env = env;
 mol.ao_loc = ao_loc;
 mol.natm = natm;
 mol.nbas = nbas;
-mol.shls_slice = [0, nbas];
+mol.shls_slice = shls_slice;
 %
 mol.ngrids = 1;
 mol.non0tab = non0tab;
 %
 mol.nao_nr = nao_nr;
 
+%% 1st tricky part... eval_gto... 02/10/25 Hai here
+% eval_name = 'GTOval_sph';
+% [x, y, z] = ndgrid(linspace(0,1,5), linspace(0,1,5), linspace(0,1,5));
+% coords = [x(:) y(:) z(:)];
+% coords = cat(4,x,y,z);
+% myeval_gto(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
+mol.eval_gto = @(eval_name, coords) myeval_gto( eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
+
+% keyboard
+end
+
+function fi = myeval_gto(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env)
+global ANG_OF NCTR_OF 
+nd = sum((bas(:,ANG_OF) * 2 + 1) .* bas(:,NCTR_OF));
+if contains(eval_name, 'GTOval_sph')
+  dims = size(coords);
+  ndims_var = ndims(coords); % only support two cases
+  if ndims_var == 4
+    % assume something like n1 x n2 x n3 x 3, and only this
+    n1 = dims(1);
+    n2 = dims(2);
+    n3 = dims(3);
+    ngrids = n1*n2*n3;
+    x = coords(:,:,:,1);
+    y = coords(:,:,:,2);
+    z = coords(:,:,:,3);
+    xyz = [x(:), y(:), z(:)]';
+    xyz = xyz(:);
+    fi = zeros([nd ngrids]); 
+    atm = reshape(atm',1,[]); % row major in C...
+    bas = reshape(bas',1,[]);
+    fi = GTOval_sph_generic_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+    fi = reshape(fi,[nd ngrids])';
+    fi = reshape(fi,[n1 n2 n3 nd]);
+    % keyboard
+  elseif ndims_var == 2
+    n1 = dims(1);
+    n2 = dims(2);
+    if n1==3
+      xyz = coords;
+      ngrids = n2;
+      xyz = xyz(:);
+      %
+      fi = zeros([nd ngrids]); 
+      atm = reshape(atm',1,[]); % row major in C...
+      bas = reshape(bas',1,[]);
+      fi = GTOval_sph_generic_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+      %
+      if (n1==3) && (n2==3)
+        disp('I am assuming your input coords is xyz by num of grid pts.'); % what can I do...
+      end
+      fi = reshape(fi,[nd ngrids]);
+      %
+    end
+    if (n1~=3) && (n2==3)
+      x = coords(:,1);
+      y = coords(:,2);
+      z = coords(:,3);
+      xyz = [x(:), y(:), z(:)]';
+      ngrids = n1;
+      xyz = xyz(:);
+      %
+      fi = zeros([nd ngrids]); 
+      atm = reshape(atm',1,[]); % row major in C...
+      bas = reshape(bas',1,[]);
+      fi = GTOval_sph_generic_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+      %
+      fi = reshape(fi,[nd ngrids])';
+      %
+    end
+    
+  else
+    xyz = [];
+    disp('Variable does not match expected tensor dimensions.');
+    fi = [];
+    % keyboard
+  end  
+  
+end
 end

@@ -188,7 +188,7 @@ geom='''
 #     '''
 
 basis = 'ccpvdz'
-basis = 'aug-ccpvdz'    
+# basis = 'aug-ccpvdz'    
 
 mol = gto.M(
     verbose=7, 
@@ -211,7 +211,8 @@ for line in geom.strip().splitlines():
     atoms_list.append((symb, (x,y,z)))
 atoms_list_bohr = format_atom(atoms_list, unit='Angstrom')
 
-unique_elems = set(a[0] for a in atoms_list_bohr)
+# unique_elems = set(a[0] for a in atoms_list_bohr)
+unique_elems = list(dict.fromkeys(a[0] for a in atoms_list_bohr)) # order preserving
 basis_dict = {}
 filename_or_basisname = basis
 optimize = False
@@ -299,6 +300,7 @@ for symb, basis_add in basis_dict.items():
     ptr_env = ptr_env + len(env0)
     _basdic[symb] = bas0
     _env.append(env0)
+    _env_array = numpy.concatenate(_env)
 
 for ia, atom in enumerate(atoms_list_bohr):
     symb = atom[0]
