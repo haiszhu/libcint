@@ -98,6 +98,7 @@ if 1 % 2025 version
   xyz = xyz(:);
   fi = zeros([nd ngrids]); 
   fi = GTOval_h2o_dimer_ccpvdz_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+  % fi = GTOval_sph_generic_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
   f = reshape(fi,[nd ngrids])';
   f = reshape(f,[n1 n2 n3 nd]);
 end
