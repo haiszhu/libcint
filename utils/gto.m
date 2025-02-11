@@ -4,7 +4,7 @@ function mol = gto(atom,basis)
 %
 % 02/10/25, Hai
 
-global ANG_OF NCTR_OF
+% global ANG_OF NCTR_OF
 
 BLKSIZE = 56;
 
@@ -59,13 +59,17 @@ scale = 1.0;
 if strcmpi(unit,'Angstrom')
   scale = 1.0 / BOHR2ANG;
 end
+checkpts = [];
 for i = 1:nAtoms
   symb = atoms_list{i,1};
   coords = atoms_list{i,2}; % in Angstrom
   coords_bohr = coords * scale;
   atoms_list_bohr{i,1} = symb;
   atoms_list_bohr{i,2} = coords_bohr;  % now in Bohr
+  %
+  checkpts = [checkpts;coords];
 end
+checkpts = checkpts';
 
 % load(basisfile, symb, optimize...)
 all_symbols = atoms_list_bohr(:,1);    
@@ -245,12 +249,22 @@ mol.nao_nr = nao_nr;
 % myeval_gto(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
 mol.eval_gto = @(eval_name, coords) myeval_gto( eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
 
-% keyboard
+%% add checkpts for building adaptive grid
+mol.checkpts = checkpts;
+
+%% 2nd, with Norb^2 basis
+mol.eval_gto2 = @(eval_name, coords) myeval_gto2( eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
+
 end
 
 function fi = myeval_gto(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env)
-global ANG_OF NCTR_OF 
-nd = sum((bas(:,ANG_OF) * 2 + 1) .* bas(:,NCTR_OF));
+% global ANG_OF NCTR_OF 
+persistent ANG_OF NCTR_OF nd;
+if isempty(nd)
+  ANG_OF      = 2; % ...
+  NCTR_OF     = 4; % ...
+  nd = sum((bas(:,ANG_OF) * 2 + 1) .* bas(:,NCTR_OF));
+end
 if contains(eval_name, 'GTOval_sph')
   dims = size(coords);
   ndims_var = ndims(coords); % only support two cases
@@ -317,3 +331,53 @@ if contains(eval_name, 'GTOval_sph')
   
 end
 end
+
+function fi = myeval_gto2(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env)
+% global ANG_OF NCTR_OF 
+persistent ANG_OF NCTR_OF Norb nd triuidx triflag;
+if isempty(triuidx)
+  ANG_OF      = 2; % ...
+  NCTR_OF     = 4; % ...
+  Norb = sum((bas(:,ANG_OF) * 2 + 1) .* bas(:,NCTR_OF));
+  nd = Norb*(Norb+1)/2;
+  triuidx = 1:Norb^2;
+  triflag = true(Norb,Norb);
+  triflag = triu(triflag);
+  triuidx = triuidx(triflag(:));
+end
+if contains(eval_name, 'GTOval_sph')
+  dims = size(coords);
+  ndims_var = ndims(coords); % only support two cases
+  if ndims_var == 4
+    % assume something like n1 x n2 x n3 x 3, and only this
+    n1 = dims(1);
+    n2 = dims(2);
+    n3 = dims(3);
+    ngrids = n1*n2*n3;
+    x = coords(:,:,:,1);
+    y = coords(:,:,:,2);
+    z = coords(:,:,:,3);
+    xyz = [x(:), y(:), z(:)]';
+    xyz = xyz(:);
+    fi = zeros([Norb ngrids]); 
+    atm = reshape(atm',1,[]); % row major in C...
+    bas = reshape(bas',1,[]);
+    fi = GTOval_sph_generic_mwrap_mex(ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+    fi = reshape(fi,[Norb ngrids]);
+    % these will dominate due to ^2 scaling...
+    firs = reshape(fi, [Norb, 1, ngrids]);
+    fij_full = pagemtimes(firs, permute(firs, [2, 1, 3])); 
+    ftmp = reshape(fij_full,[Norb^2 ngrids]);
+    ftmp = ftmp(triuidx,:)';
+    fi = reshape(ftmp,[n1 n2 n3 nd]);
+  
+  else % nothing else...  
+    xyz = [];
+    disp('Variable does not match expected tensor dimensions.');
+    fi = [];
+    % keyboard
+  end  
+  
+end
+end
+
