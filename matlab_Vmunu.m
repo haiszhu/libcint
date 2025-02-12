@@ -10,14 +10,32 @@ order = 8;
 eps = 1e-06; 
 
 %%% resolve tree on cgto^2
-func2 = @(x,y,z) cgto2func(x,y,z);
+rad = 15;
+geom = sprintf([ ...
+    'O    0    0.       0.\n',...
+    'H    0    -0.757   0.587\n',...
+    'H    0    0.757    0.587\n']),
+basmod = 'cc-pvdz.dat';
+basis = fullfile(fileparts(mfilename('fullpath')), './basis', basmod);
+mol = gto(geom,basis);
+eval_name = 'GTOval_sph';
 opts = struct('balance',true,...
               'tol',eps, ...
-              'checkpts',[0 0 0; 0 -0.757 0.757;0 0.587 0.587], ...
+              'checkpts',mol.checkpts, ... 
               'ifcoeffs',false);
-f = treefun3(func2,[-15 15 -15 15 -15 15],order,opts); 
-% f = treefun3(func,[-0.5 0.5 -0.5 0.5 -0.5 0.5],order,opts); 
+func2 = @(x,y,z) mol.eval_gto2(eval_name, cat(4,x,y,z));
+f = treefun3(func2,[-rad rad -rad rad -rad rad],order,opts);
 plot(f,func2);
+
+% %%% resolve tree on cgto^2
+% func2 = @(x,y,z) cgto2func(x,y,z);
+% opts = struct('balance',true,...
+%               'tol',eps, ...
+%               'checkpts',[0 0 0; 0 -0.757 0.757;0 0.587 0.587], ...
+%               'ifcoeffs',false);
+% f = treefun3(func2,[-15 15 -15 15 -15 15],order,opts); 
+% % f = treefun3(func,[-0.5 0.5 -0.5 0.5 -0.5 0.5],order,opts); 
+% plot(f,func2);
 
 %%% treefun to bdmk
 Norb = 24; % 
@@ -33,10 +51,14 @@ diff = abs(reshape(src/ratio,3,[]) - r2);
 
 %%% eval cgto
 src0 = src/ratio;
-func = @(x,y,z) cgtofunc(x,y,z);
+func = @(x,y,z) mol.eval_gto(eval_name, cat(4,x,y,z));
 fvals0 = squeeze(func(squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:))));
 fvals0 = permute(fvals0,[3 1 2]);
 fvals = fvals0;
+% func = @(x,y,z) cgtofunc(x,y,z);
+% fvals0 = squeeze(func(squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:))));
+% fvals0 = permute(fvals0,[3 1 2]);
+% fvals = fvals0;
 
 %%% compute V_ijkl
 nd = Norb*(Norb+1)/2;
@@ -72,7 +94,7 @@ for i=1:Norb
   end
 end
 
-func = @(x,y,z) cgtofunc(x,y,z);
+% func = @(x,y,z) cgtofunc(x,y,z);
 fvals0 = func(r2(1,:),r2(2,:),r2(3,:));
 fvals0 = reshape(fvals0,[npts Norb]);
 fvals_ij = zeros(npts,Norb^2);
