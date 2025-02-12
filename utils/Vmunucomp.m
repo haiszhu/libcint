@@ -2,8 +2,6 @@ function Vmunu = Vmunucomp(Norb,ratio,fvals,nleafbox,srcleaf,wtsleaf,...
                             ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
                             nboxes,nlevels,ltree,itree,iptr,centers,boxsize)
 
-%
-nhess = ndim*(ndim+1)/2;
 %%% based on fvals for all cGTOs, compute phi_k(r')*phi_l(r'), and singular volume integral
 nd = size(fvals,2);
 phi_kl = zeros(nd,npbox,nboxes); 
@@ -11,18 +9,50 @@ for k = 1:nd
   phi_kl(k,:,:) = reshape(fvals(:,k),[npbox nboxes]);
 end
 pot = zeros(nd,npbox,nboxes);
-nd0 = 10;
-nchnk = floor(nd/nd0);
-disp("=========Start BDMK=======");
-disp("nchnk is : " + nchnk );
-% for jchnk = 1:1
-for jchnk = 1:nchnk
-  jidxv = (jchnk-1)*nd0 + (1:nd0);
+pot = bdmk_warp(nd,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
+                 nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl, ...
+                 pot);
+if 0 % wrap up
+  nhess = ndim*(ndim+1)/2;
+  nd = size(fvals,2);
+  phi_kl = zeros(nd,npbox,nboxes); 
+  for k = 1:nd
+    phi_kl(k,:,:) = reshape(fvals(:,k),[npbox nboxes]);
+  end
+  pot = zeros(nd,npbox,nboxes);
+  nd0 = 10;
+  nchnk = floor(nd/nd0);
+  disp("=========Start BDMK=======");
+  disp("nchnk is : " + nchnk );
+  % for jchnk = 1:1
+  for jchnk = 1:nchnk
+    jidxv = (jchnk-1)*nd0 + (1:nd0);
+    phi_kl0 = phi_kl(jidxv,:,:);
+    pot0=zeros(nd0,npbox,nboxes);
+    grad0=zeros(nd0,ndim,npbox,nboxes);
+    hess0=zeros(nd0,nhess,npbox,nboxes);
+    tic
+    ifpgh=1;
+    ifpghtarg=0;
+    ntarg = 100;
+    targs=zeros(ndim,ntarg); pote=zeros(nd0,ntarg);
+    grade=zeros(nd0,ndim,ntarg); hesse=zeros(nd0,nhess,ntarg);
+    timeinfo = zeros(20,1);
+    [pot0,grad0,hess0,pote,grade,hesse] = ...
+      bdmk_mex(nd0,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
+             nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl0, ...
+             ifpgh,pot0,grad0,hess0,ntarg,targs, ...
+             ifpghtarg,pote,grade,hesse,timeinfo);
+    pot(jidxv,:,:) = pot0;
+    disp("jchnk is : " + jchnk + " ( total nchnk is : " + nchnk + " )");
+  end
+  jchnk = nchnk+1;
+  jidxv = ((jchnk-1)*nd0+1):nd;
+  nd0 = numel(jidxv);
   phi_kl0 = phi_kl(jidxv,:,:);
   pot0=zeros(nd0,npbox,nboxes);
   grad0=zeros(nd0,ndim,npbox,nboxes);
   hess0=zeros(nd0,nhess,npbox,nboxes);
-  tic
   ifpgh=1;
   ifpghtarg=0;
   ntarg = 100;
@@ -30,33 +60,13 @@ for jchnk = 1:nchnk
   grade=zeros(nd0,ndim,ntarg); hesse=zeros(nd0,nhess,ntarg);
   timeinfo = zeros(20,1);
   [pot0,grad0,hess0,pote,grade,hesse] = ...
-    bdmk_mex(nd0,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
-           nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl0, ...
-           ifpgh,pot0,grad0,hess0,ntarg,targs, ...
-           ifpghtarg,pote,grade,hesse,timeinfo);
+  bdmk_mex(nd0,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
+         nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl0, ...
+         ifpgh,pot0,grad0,hess0,ntarg,targs, ...
+         ifpghtarg,pote,grade,hesse,timeinfo);
   pot(jidxv,:,:) = pot0;
-  disp("jchnk is : " + jchnk + " ( total nchnk is : " + nchnk + " )");
+  disp("=========End BDMK=======");
 end
-jchnk = nchnk+1;
-jidxv = ((jchnk-1)*nd0+1):nd;
-nd0 = numel(jidxv);
-phi_kl0 = phi_kl(jidxv,:,:);
-pot0=zeros(nd0,npbox,nboxes);
-grad0=zeros(nd0,ndim,npbox,nboxes);
-hess0=zeros(nd0,nhess,npbox,nboxes);
-ifpgh=1;
-ifpghtarg=0;
-ntarg = 100;
-targs=zeros(ndim,ntarg); pote=zeros(nd0,ntarg);
-grade=zeros(nd0,ndim,ntarg); hesse=zeros(nd0,nhess,ntarg);
-timeinfo = zeros(20,1);
-[pot0,grad0,hess0,pote,grade,hesse] = ...
-bdmk_mex(nd0,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
-       nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl0, ...
-       ifpgh,pot0,grad0,hess0,ntarg,targs, ...
-       ifpghtarg,pote,grade,hesse,timeinfo);
-pot(jidxv,:,:) = pot0;
-disp("=========End BDMK=======");
 
 %
 phi_ij_leaf = zeros(nd,npbox,nleafbox); % leaf box information
