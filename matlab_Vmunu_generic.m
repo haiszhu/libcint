@@ -61,7 +61,7 @@ beta = 6.0d0;
 %%% load isdf data
 %
 idfname = 'isdf_1e-9.h5'; % 0.0026
-idfname = 'isdf_1e-3.h5'; % 0.4476
+% idfname = 'isdf_1e-3.h5'; % 0.4476
 info = h5info(idfname);
 Np = h5read(idfname, '/Np');
 collocation_matrix = h5read(idfname, '/collocation_matrix');
