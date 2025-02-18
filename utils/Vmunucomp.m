@@ -12,9 +12,16 @@ pot = zeros(nd,npbox,nboxes);
 % pot = bdmk_wrap(nd,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
 %                  nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl, ...
 %                  pot);
+disp("=========Start BDMK=======");
+disp("nd is : " + nd );
+disp("npts is : " + npbox*nboxes);
+tic,
 pot = bdmk_wrap_mex(nd,ndim,eps,ikernel,beta,ipoly,norder,npbox, ...
                  nboxes,nlevels,ltree,itree,iptr,centers,boxsize,phi_kl, ...
                  pot);
+time = toc;
+disp("=========End BDMK=======");
+disp("BDMK (fortran) time is : " + time);
 if 0 % wrap up
   nhess = ndim*(ndim+1)/2;
   nd = size(fvals,2);
@@ -72,6 +79,8 @@ if 0 % wrap up
 end
 
 %
+disp("=========Start potleaf=======");
+tic,
 phi_ij_leaf = zeros(nd,npbox,nleafbox); % leaf box information
 potleaf = zeros(nd,npbox,nleafbox);
 jbox = 0;
@@ -93,9 +102,13 @@ for ilev = 0:nlevels
     end
   end
 end
+time = toc;
+disp("=========End potleaf=======");
+disp("potleaf (matlab) time is : " + time);
 
 %% compute smooth volume integral
 disp("=========Start Smooth Integral=======");
+tic,
 % nd = nd0;
 potleaf = reshape(potleaf,nd,[])/ratio^2; 
 phi_ij_leaf = reshape(phi_ij_leaf,nd,[]);
@@ -117,5 +130,7 @@ if 0 % old version pre 2025
   end
 end
 disp("=========End Smooth Integral=======");
+time = toc;
+disp("Smooth Integral (matlab) time is : " + time);
 
 end
