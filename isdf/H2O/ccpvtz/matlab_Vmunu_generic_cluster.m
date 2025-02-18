@@ -6,7 +6,7 @@
 addpath('../../../')
 addpath('../../../utils/')
 addpath('../../../treefun/')
-addpath('/mnt/home/cyeh/ceph/papers/isdf_adaptive/isdf/h2o/ccpvdz_src_1e-8/')
+addpath('/mnt/home/cyeh/ceph/papers/isdf_adaptive/isdf/h2o/ccpvtz_src_1e-8/')
 
 clear all
 order = 10;
@@ -18,7 +18,7 @@ geom = sprintf([ ...
     'O    0    0.       0.\n',...
     'H    0    -0.757   0.587\n',...
     'H    0    0.757    0.587\n']),
-basmod = 'cc-pvdz.dat';
+basmod = 'cc-pvtz.dat';
 basis = fullfile(fileparts(mfilename('fullpath')), '../../../basis', basmod);
 mol = gto(geom,basis);
 eval_name = 'GTOval_sph';
@@ -54,16 +54,16 @@ beta = 6.0d0;
 %%% load isdf data
 %
 idfname = 'isdf_1e-3.h5'; % 0.8859462695394982
-% idfname = 'isdf_1e-4.h5'; % 0.4503030075599318
-% idfname = 'isdf_1e-5.h5'; % 0.31833810509011884
-% idfname = 'isdf_1e-6.h5'; %
-% idfname = 'isdf_1e-7.h5';
-% idfname = 'isdf_1e-8.h5';
-% idfname = 'isdf_1e-9.h5';
-% idfname = 'isdf_1e-10.h5';
-% idfname = 'isdf_1e-11.h5';
-% idfname = 'isdf_1e-12.h5';
-% idfname = 'isdf_1e-13.h5';
+idfname = 'isdf_1e-4.h5'; % 0.4503030075599318
+idfname = 'isdf_1e-5.h5'; % 0.31833810509011884
+idfname = 'isdf_1e-6.h5'; %
+idfname = 'isdf_1e-7.h5';
+idfname = 'isdf_1e-8.h5';
+idfname = 'isdf_1e-9.h5';
+idfname = 'isdf_1e-10.h5';
+idfname = 'isdf_1e-11.h5';
+idfname = 'isdf_1e-12.h5';
+idfname = 'isdf_1e-13.h5';
 info = h5info(idfname);
 Np = h5read(idfname, '/Np');
 collocation_matrix = h5read(idfname, '/collocation_matrix');
