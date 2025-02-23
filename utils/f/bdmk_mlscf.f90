@@ -45,8 +45,10 @@
       real *8, allocatable :: phi_kl(:,:)
       real *8 h5diff
       ! 
-      character(len=100) :: filename1, filename2
-      character(len=100) :: treefun_h5_fn
+      character(len=100) :: treefun_filename
+      character(len=100) :: isdf_filename
+      character(len=100) :: output_filename
+      integer :: num_args
       ! 
       integer ndims
       ! integer *8 :: dims(1)
@@ -68,11 +70,26 @@
       real *8, allocatable :: Vmunu(:,:)
       ! 
       timeinfo = 0.0d0
-      ! 
-            
+      !
+      num_args = command_argument_count()
+      !
+      if (num_args >= 3) then
+        call get_command_argument(1, treefun_filename)
+        call get_command_argument(2, isdf_filename)
+        call get_command_argument(3, output_filename)
+        print *, 'Using the following filenames:'
+        print *, 'treefun_filename: ', trim(treefun_filename)
+        print *, 'isdf_filename:    ', trim(isdf_filename)
+        print *, 'output_filename:  ', trim(output_filename)
+      else
+        treefun_filename = "treefun_h2o_cc-pvdz.h5"
+        isdf_filename = "isdf_1e-3.h5"
+        output_filename = "bdmk_1e-3.h5"
+      endif
+      !      
       call h5open_f(error) ! Initialize HDF5
       ! read treefun data
-      call h5fopen_f("treefun_h2o_cc-pvdz.h5", H5F_ACC_RDONLY_F, & 
+      call h5fopen_f(treefun_filename, H5F_ACC_RDONLY_F, & 
                     treefun_file_id_rd,error) ! Open the HDF5 file
       if (error /= 0) then
         print*, "Error opening HDF5 file: "
@@ -208,7 +225,7 @@
       call h5dclose_f(treefun_dataset_id_rd, error) ! close original dataset and file
 
       ! read isdf data
-      call h5fopen_f("isdf_1e-3.h5", H5F_ACC_RDONLY_F, & 
+      call h5fopen_f(isdf_filename, H5F_ACC_RDONLY_F, & 
                     isdf_file_id_rd,error) ! Open the HDF5 file
       ! call h5fopen_f("isdf_1e-3.h5", H5F_ACC_RDWR_F, isdf_file_id_rd, error) ! Open the HDF5 file
       call h5dopen_f(isdf_file_id_rd, "/interpolating_vectors", &
@@ -326,7 +343,7 @@
       ! PRINT *, 'max diff in Vmunu is ', maxval(Vmunu - Vmunu2)
 
       ! write
-      call h5fcreate_f("bdmk_1e-3.h5", H5F_ACC_TRUNC_F,isdf_file_id_wt,error) ! Create a new HDF5 file
+      call h5fcreate_f(output_filename, H5F_ACC_TRUNC_F,isdf_file_id_wt,error) ! Create a new HDF5 file
       ! write pot
       dims_wt = (/nd, npbox, nboxes/)
       call h5screate_simple_f(3, dims_wt, isdf_dataspace_id_wt, error) ! Create a dataspace for the new dataset
