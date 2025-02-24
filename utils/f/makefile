@@ -1,0 +1,148 @@
+
+# ldd ./matlab/bdmk_module.mexa64 
+
+EXEC = int2-bdmk
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+HOST=osx
+OPENBLAS_DIR = /Users/hzhu/git/OpenBLAS
+endif
+ifeq ($(UNAME), Linux)
+HOST=linux-gfortran
+OPENBLAS_DIR = /home/hai/git/OpenBLAS
+SRC_DIR = /home/hai/Documents/Github/job/bdmkf
+HDF5_INCLUDE = -I/usr/include/hdf5/serial
+HDF5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/serial
+endif
+# HOST=linux-ifort
+
+ifeq ($(HOST),osx)
+FC = gfortran
+#FFLAGS = -O3 -march=native -std=legacy -funroll-loops -c -w
+FFLAGS = -fPIC -O3 -march=native -std=legacy -funroll-loops -c -w
+FFLAGS_OMP = $(FFLAGS) -fopenmp
+FLINK = gfortran -w -o $(EXEC)
+FEND = $(OPENBLAS_DIR)/libopenblas_vortex-r0.3.29.a -lpthread -lm
+# FEND = -L/opt/intel/oneapi/lib/intel64 -Wl,--no-as-needed -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
+#FEND = -lopenblas -Wl,--no-as-needed 
+# LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
+LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas_vortex-r0.3.29
+MWRAP = ~/mwrap/mwrap
+MEX = /Applications/MATLAB_R2023b.app/bin/mex
+endif
+
+ifeq ($(HOST),linux-gfortran)
+FC = gfortran
+# FFLAGS = -fPIC -O3 -march=native -std=legacy -fopenmp -funroll-loops -c -w
+FFLAGS = -fPIC -O3 -march=native -std=legacy -funroll-loops -c -w
+FFLAGS_OMP = $(FFLAGS) -fopenmp
+# FLINK = gfortran -fopenmp -w -o $(EXEC)
+FLINK = gfortran -w -o $(EXEC)
+FEND = $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm
+# FEND = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
+# FEND = -lopenblas
+# LBLAS = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
+# LBLAS = -lopenblas
+# LBLAS = /opt/intel/oneapi/mkl/latest/lib/libmkl_intel_lp64.a \
+#         /opt/intel/oneapi/mkl/latest/lib/libmkl_sequential.a \
+#         /opt/intel/oneapi/mkl/latest/lib/libmkl_core.a \
+#         -lpthread -lm -ldl
+LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas
+MWRAP = ~/mwrap/mwrap
+MEX = mex
+endif
+
+ifeq ($(HOST),linux-ifort)
+FC = ifort
+#FFLAGS = -fPIC -O3 -march=native -qopenmp -funroll-loops -c -w 
+FFLAGS = -fPIC -O3 -march=x86-64 -qopenmp -funroll-loops -c -w
+#FFLAGS = -O3 -fp-model=strict -qopenmp -xHost -c -w
+FLINK = ifort -qopenmp -o $(EXEC)
+#FEND = -qmkl=sequential
+FEND = -qmkl
+endif
+
+# SRC = ./src
+
+.PHONY: all clean list bdmk_wrap.o
+
+SOURCES =  $(SRC_DIR)/bdmk_wrap.f90 \
+  $(SRC_DIR)/bdmk.f \
+  $(SRC_DIR)/boxfgt_md.f \
+  $(SRC_DIR)/src/besseljs3d.f \
+  $(SRC_DIR)/src/hank103.f \
+  $(SRC_DIR)/src/legeexps.f \
+  $(SRC_DIR)/src/chebexps.f \
+  $(SRC_DIR)/src/prini_new.f \
+  $(SRC_DIR)/src/fmmcommon2d.f \
+  $(SRC_DIR)/src/lapack_f77.f \
+  $(SRC_DIR)/src/cumsum.f \
+  $(SRC_DIR)/src/hkrand.f \
+  $(SRC_DIR)/src/dlaran.f \
+  $(SRC_DIR)/src/voltab2d.f \
+  $(SRC_DIR)/src/voltab3d.f \
+  $(SRC_DIR)/src/polytens.f \
+  $(SRC_DIR)/src/tree_data_routs.f \
+  $(SRC_DIR)/src/tensor_prod_routs.f \
+  $(SRC_DIR)/src/pts_tree.f \
+  $(SRC_DIR)/src/tree_routs.f \
+  $(SRC_DIR)/src/tree_vol_coeffs.f \
+  $(SRC_DIR)/src/dmk_routs.f \
+  $(SRC_DIR)/src/get_sognodes.f \
+  $(SRC_DIR)/src/l2dsognodes.f \
+  $(SRC_DIR)/src/l3dsognodes.f \
+  $(SRC_DIR)/src/sl3dsognodes.f \
+  $(SRC_DIR)/src/y2dsognodes.f \
+  $(SRC_DIR)/src/y3dsognodes.f \
+  $(SRC_DIR)/src/bdmk_local_tables.f \
+  $(SRC_DIR)/src/bdmk_local.f \
+  $(SRC_DIR)/src/bdmk_pwterms.f \
+  $(SRC_DIR)/src/bdmk_pwrouts.f
+
+ifeq ($(WITH_SECOND),1)
+SOURCES += $(SRC_DIR)/src/second-r8.f
+endif
+
+# OBJECTS = $(patsubst %.f,%.o,$(patsubst %.f90,%.o,$(SOURCES)))
+OBJECTS = $(patsubst $(SRC_DIR)/%.f, %.o, $(patsubst $(SRC_DIR)/src/%.f, %.o, \
+          $(patsubst $(SRC_DIR)/%.f90, %.o, $(SOURCES))))
+# $(info OBJECTS contains: $(OBJECTS))
+#
+# use only the file part of the filename, then manually specify
+# the build location
+#
+
+%.o : $(SRC_DIR)/%.f
+	$(FC) $(FFLAGS) $< -o $@
+
+%.o : $(SRC_DIR)/%.f90
+	$(FC) $(FFLAGS) $< -o $@
+
+%.o : $(SRC_DIR)/src/%.f
+	$(FC) $(FFLAGS) -c $< -o $@
+
+%.mod : $(SRC_DIR)/%.f90
+	$(FC) $(FFLAGS) $< 
+
+all: bdmk_wrap.o $(OBJECTS) int2-bdmk-mlscf
+
+bdmk_wrap.o: $(SRC_DIR)/bdmk_wrap.f90
+	$(FC) $(FFLAGS_OMP) -c $< -o $@
+
+int2-bdmk-mlscf: $(OBJECTS) bdmk_mlscf.f90
+	$(FC) -O3 -o int2-bdmk-mlscf -fopenmp bdmk_mlscf.f90 $(OBJECTS) \
+				-L. $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm \
+				$(HDF5_INCLUDE) -L$(HDF5_DIR) -lhdf5_fortran -lhdf5
+
+clean:
+	rm -f $(OBJECTS)
+	rm -f $(EXEC)
+	rm -f fort*
+	rm -f int*
+#	rm -f $(MATLAB_DIR)/*.m $(MATLAB_DIR)/*.mex* 
+
+list: $(SOURCES)
+	$(warning Requires:  $^)
+
+
