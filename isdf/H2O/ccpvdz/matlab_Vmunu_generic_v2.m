@@ -90,7 +90,7 @@ file_id = H5F.create(eri_h5_filename, 'H5F_ACC_TRUNC', 'H5P_DEFAULT', 'H5P_DEFAU
 vijkl_dims = [Norb, Norb, Norb, Norb];
 vijkl_dataspace_id = H5S.create_simple(4, fliplr(vijkl_dims), []);
 vijkl_dcpl_id = H5P.create('H5P_DATASET_CREATE');
-vijkl_dataset_id = H5D.create(file_id, '/Vijkl', 'H5T_NATIVE_DOUBLE', vijkl_dataspace_id, vijkl_dcpl_id);
+vijkl_dataset_id = H5D.create(file_id, '/DS1', 'H5T_NATIVE_DOUBLE', vijkl_dataspace_id, vijkl_dcpl_id);
 H5D.write(vijkl_dataset_id, 'H5T_NATIVE_DOUBLE', 'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', Vijkl);
 H5D.close(vijkl_dataset_id);
 H5S.close(vijkl_dataspace_id);
