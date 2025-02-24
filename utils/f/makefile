@@ -7,6 +7,9 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
 HOST=osx
 OPENBLAS_DIR = /Users/hzhu/git/OpenBLAS
+SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
+HDF5_INCLUDE = -I/opt/homebrew/include
+HDF5_DIR = /opt/homebrew/lib
 endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
