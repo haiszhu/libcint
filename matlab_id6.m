@@ -13,7 +13,7 @@ bdmk_exec = './utils/f/int2-bdmk-mlscf';
 treefun_order = 8;
 treefun_eps = 1e-06; 
 isdf_eps = 1e-3;
-nd = 280;
+nd = 1600;
 
 %%% resolve tree on cgto^2
 rad = 15;
@@ -22,7 +22,7 @@ geom = sprintf([ ...
     'H    0    -0.757   0.587\n',...
     'H    0    0.757    0.587\n']),
 molname = 'h2o';
-basmod = 'cc-pvdz.dat';
+basmod = 'cc-pvtz.dat';
 basis = fullfile(fileparts(mfilename('fullpath')), './basis', basmod);
 mol = gto(geom,basis);
 eval_name = 'GTOval_sph';
@@ -142,10 +142,10 @@ for i = 1:Norb
 end
 
 % save
-eri_mat_filename = ['ERI_h2o_ccpvdz_eps_' eps_string '.mat'];
+eri_mat_filename = ['ERI_' molname '_' erase(erase(basmod, '.dat'),'-') '_eps_' eps_string '.mat'];
 save(eri_mat_filename,'Vijkl')   
 %
-eri_h5_filename = ['ERI_h2o_ccpvdz_eps_' eps_string '.h5'];
+eri_h5_filename = ['ERI_' molname '_' erase(erase(basmod, '.dat'),'-') '_eps_' eps_string '.h5'];
 file_id = H5F.create(eri_h5_filename, 'H5F_ACC_TRUNC', 'H5P_DEFAULT', 'H5P_DEFAULT');
 vijkl_dims = [Norb, Norb, Norb, Norb];
 vijkl_dataspace_id = H5S.create_simple(4, fliplr(vijkl_dims), []);
