@@ -44,6 +44,12 @@ for i = 1:numel(lines)
   if numel(parts) < 4
     continue  % 
   end
+  %
+  for k = 2:4
+    if endsWith(parts{k}, '.')
+      parts{k} = extractBefore(parts{k}, strlength(parts{k}));
+    end
+  end
   symb = parts{1};
   x = str2double(parts{2});
   y = str2double(parts{3});
