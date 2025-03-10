@@ -5,20 +5,32 @@ CFLAGS = -I./src -I./include -fPIC -O2 -Wall -D_Float128=__float128 -DWITH_CINT2
 LDFLAGS = -shared -lm -fopenmp -lquadmath
 LIBS = -lblas -lm -ldl
 UNAME := $(shell uname)
+ARCH := $(shell uname -m)
 ifeq ($(UNAME), Darwin)
-CC = gcc-14
-MEX = /Applications/MATLAB_R2023b.app/bin/mex
-MWRAP = ~/mwrap/mwrap
-LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
-CINTDLIBRARY_NAME = libcint.dylib
-NPHELPERDLIBRARY_NAME = libnp_helper.dylib
-CGTODLIBRARY_NAME = libcgto.dylib
+	CC = gcc-14
+	MWRAP = ~/mwrap/mwrap
+	CINTDLIBRARY_NAME = libcint.dylib
+	NPHELPERDLIBRARY_NAME = libnp_helper.dylib
+	CGTODLIBRARY_NAME = libcgto.dylib
+	ifeq ($(ARCH), arm64)
+		MEX = /Applications/MATLAB_R2023b.app/bin/mex
+		LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
+		GCC_LIB_DIR = 
+		GCC_LIBS = -lgomp -lquadmath
+	else
+# using clang here...
+		MEX = /Applications/MATLAB_R2024b.app/bin/mex
+		LBLAS = -L/usr/local/opt/openblas/lib -lopenblas
+		GCC_LIB_DIR = /usr/local/opt/gcc/lib/gcc/current
+		GCC_LIBS = -L$(GCC_LIB_DIR) -lgomp -lquadmath $(GCC_LIB_DIR)/libgcc_s.1.1.dylib
+	endif
 endif
 ifeq ($(UNAME), Linux)
 CC = gcc
 MEX = mex
 MWRAP = ~/mwrap/mwrap
 LBLAS = -lopenblas
+GCC_LIBS = -lgomp -lquadmath
 CINTDLIBRARY_NAME = libcint.so
 NPHELPERDLIBRARY_NAME = libnp_helper.so
 CGTODLIBRARY_NAME = libcgto.so
@@ -121,7 +133,7 @@ gateway.c: gateway.mw
 	$(MWRAP) -c99complex -mex gateway -c gateway.c gateway.mw
 # not sure all the flags are needed (seems to work on linux)... need to check with -v and other things... 07/27/24 Hai
 mexfile: gateway.c $(BINARY_DIR)/cgto.o
-	$(MEX) gateway.c $(BINARY_DIR)/cgto.o -largeArrayDims -lm -lgomp -lquadmath -lstdc++ -llapack $(LBLAS) -L$(LIB_DIR) libcgto.a libcint.a -I$(ROOT_DIR)
+	$(MEX) gateway.c $(BINARY_DIR)/cgto.o -largeArrayDims -lm -lstdc++ -llapack $(LBLAS) -L$(LIB_DIR) libcgto.a libcint.a -I$(ROOT_DIR) $(GCC_LIBS) CFLAGS="\$$CFLAGS -Wno-implicit-function-declaration"
 #	mex -v gateway.c $(BINARY_DIR)/cgto.o -largeArrayDims -lm -lgomp -lquadmath -lstdc++ -llapack -lopenblas -L$(LIB_DIR) libcgto.a libcint.a -I$(ROOT_DIR)
 
 clean:

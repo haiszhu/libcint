@@ -3,13 +3,22 @@
 
 EXEC = int2-bdmk
 UNAME := $(shell uname)
+ARCH := $(shell uname -m)
 
+# brew install hdf5
 ifeq ($(UNAME), Darwin)
-HOST=osx
-OPENBLAS_DIR = /Users/hzhu/git/OpenBLAS
-SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
-HDF5_INCLUDE = -I/opt/homebrew/include
-HDF5_DIR = /opt/homebrew/lib
+	HOST=osx
+	ifeq ($(ARCH), arm64)
+		OPENBLAS_DIR = /Users/hzhu/git/OpenBLAS
+		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
+		HDF5_INCLUDE = -I/opt/homebrew/include
+		HDF5_DIR = /opt/homebrew/lib
+	else
+		OPENBLAS_DIR = /Users/hzhu1/git/OpenBLAS
+		SRC_DIR = /Users/hzhu1/Documents/Github/job/bdmkf
+		HDF5_INCLUDE = -I/usr/local/include
+		HDF5_DIR = /usr/local/lib
+	endif
 endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
