@@ -1,6 +1,6 @@
 
 # ldd ./matlab/bdmk_module.mexa64 
-# module load hdf5
+# module load hdf5 gcc matlab
 
 EXEC = int2-bdmk
 UNAME := $(shell uname)
@@ -134,7 +134,7 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.f, %.o, $(patsubst $(SRC_DIR)/src/%.f, %.o, \
 %.mod : $(SRC_DIR)/%.f90
 	$(FC) $(FFLAGS) $< 
 
-all: bdmk_wrap.o $(OBJECTS) int2-bdmk-mlscf
+all: bdmk_wrap.o $(OBJECTS) int2-bdmk-mlscf matlab
 
 bdmk_wrap.o: $(SRC_DIR)/bdmk_wrap.f90
 	$(FC) $(FFLAGS_OMP) -c $< -o $@
@@ -153,7 +153,7 @@ mex: helper_module.mw
 	mv ./*_mex.m ../
 
 matlab: helper_module.c helper.o
-	$(MEX) helper_module.c helper.o -largeArrayDims $(MFLAGS) -lgfortran -lgomp -lm -lstdc++ $(LBLAS) -llapack -outdir ../
+	$(MEX) helper_module.c helper.o -largeArrayDims $(MFLAGS) -lgfortran -lgomp -lm -lstdc++ $(LBLAS) -outdir ../
 
 clean:
 	rm -f $(OBJECTS)
