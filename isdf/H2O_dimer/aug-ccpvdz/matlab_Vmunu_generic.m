@@ -119,36 +119,8 @@ fprintf('Saved bdmk output to: %s\n', log_filename);
 Vmunu = h5read(output_filename, '/Vmunu');
 
 %%% Vijkl, after loading isdf_file and output_file
-collocation_matrix2 = zeros(nd,Norb,Norb);
-idcoefs;
-tmpidx = 0;
-for i=1:Norb
-  for j=1:i
-    tmpidx = tmpidx + 1;
-    collocation_matrix2(:,j,i) = idcoefs(:,tmpidx);
-  end
-end
-for i=1:Norb
-  for j=i+1:Norb
-    collocation_matrix2(:,j,i) = collocation_matrix2(:,i,j);
-  end
-end
-collocation_matrix2 = reshape(collocation_matrix2,[nd Norb^2]);
 Vijkl = zeros(Norb,Norb,Norb,Norb);
-for i = 1:Norb
-  for j = 1:Norb
-    % collocation_matrix_ij = collocation_matrix(i,:).*collocation_matrix(j,:);
-    collocation_matrix_ij = collocation_matrix2(:,(i-1)*Norb+j);
-    for k = 1:Norb
-      for l = 1:Norb
-        % collocation_matrix_kl = collocation_matrix(k,:).*collocation_matrix(l,:);
-        collocation_matrix_kl = collocation_matrix2(:,(k-1)*Norb+l);
-        Vijkl(i,j,k,l) = sum(Vmunu.*( collocation_matrix_ij(:) ...
-                                     .*collocation_matrix_kl(:)'),'all');
-      end
-    end
-  end
-end
+Vijkl = computeVijkl_mex(nd, Norb, idcoefs, Vmunu, Vijkl);
 
 % save
 eri_mat_filename = ['ERI_' molname '_' erase(erase(basmod, '.dat'),'-') '_' eps_string '.mat'];
@@ -167,3 +139,36 @@ H5F.close(file_id);
 
 
 % keyboard
+
+% %%% Vijkl, after loading isdf_file and output_file
+% collocation_matrix2 = zeros(nd,Norb,Norb);
+% idcoefs;
+% tmpidx = 0;
+% for i=1:Norb
+%   for j=1:i
+%     tmpidx = tmpidx + 1;
+%     collocation_matrix2(:,j,i) = idcoefs(:,tmpidx);
+%   end
+% end
+% for i=1:Norb
+%   for j=i+1:Norb
+%     collocation_matrix2(:,j,i) = collocation_matrix2(:,i,j);
+%   end
+% end
+% collocation_matrix2 = reshape(collocation_matrix2,[nd Norb^2]);
+% Vijkl = zeros(Norb,Norb,Norb,Norb);
+% for i = 1:Norb
+%   for j = 1:Norb
+%     % collocation_matrix_ij = collocation_matrix(i,:).*collocation_matrix(j,:);
+%     collocation_matrix_ij = collocation_matrix2(:,(i-1)*Norb+j);
+%     for k = 1:Norb
+%       for l = 1:Norb
+%         % collocation_matrix_kl = collocation_matrix(k,:).*collocation_matrix(l,:);
+%         collocation_matrix_kl = collocation_matrix2(:,(k-1)*Norb+l);
+%         Vijkl(i,j,k,l) = sum(Vmunu.*( collocation_matrix_ij(:) ...
+%                                      .*collocation_matrix_kl(:)'),'all');
+%       end
+%     end
+%   end
+% end
+

@@ -137,15 +137,26 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.f, %.o, $(patsubst $(SRC_DIR)/src/%.f, %.o, \
 %.mod : $(SRC_DIR)/%.f90
 	$(FC) $(FFLAGS) $< 
 
-all: bdmk_wrap.o $(OBJECTS) int2-bdmk-mlscf
+all: bdmk_wrap.o helper.o $(OBJECTS) int2-bdmk-mlscf mex matlab
 
 bdmk_wrap.o: $(SRC_DIR)/bdmk_wrap.f90
+	$(FC) $(FFLAGS_OMP) -c $< -o $@
+
+helper.o: helper.f90
 	$(FC) $(FFLAGS_OMP) -c $< -o $@
 
 int2-bdmk-mlscf: $(OBJECTS) bdmk_mlscf.f90
 	$(FC) -O3 -o int2-bdmk-mlscf -fopenmp bdmk_mlscf.f90 $(OBJECTS) \
 				-L. $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm \
 				$(HDF5_INCLUDE) -L$(HDF5_DIR) -lhdf5_fortran -lhdf5
+
+mex: helper_module.mw
+	$(MWRAP) -c99complex -mex helper_module -mb -list helper_module.mw
+	$(MWRAP) -c99complex -mex helper_module -c helper_module.c helper_module.mw
+	mv ./*_mex.m ../
+
+matlab: helper_module.c helper.o
+	$(MEX) helper_module.c helper.o -largeArrayDims $(MFLAGS) -lgfortran -lgomp -lm -lstdc++ $(LBLAS) -llapack -outdir ../
 
 clean:
 	rm -f $(OBJECTS)

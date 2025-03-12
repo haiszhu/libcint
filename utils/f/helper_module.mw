@@ -1,0 +1,9 @@
+
+% --------------------------------------------------------------------------
+@function Vijkl = computeVijkl_mex(nd, Norb, idcoefs, Vmunu, Vijkl)
+Norbtp1d2 = Norb*(Norb+1)/2;
+Norb2 = Norb^2;
+Vijkl = reshape(Vijkl,[Norb2 Norb2]);
+# FORTRAN computeVijkl(int[1] nd, int[1] Norb, double[nd,Norbtp1d2] idcoefs, double[nd,nd] Vmunu, inout double[Norb2,Norb2] Vijkl);
+Vijkl = reshape(Vijkl,[Norb Norb Norb Norb]);
+end
