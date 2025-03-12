@@ -70,6 +70,8 @@
       real *8, allocatable :: potleafrs(:,:), fvalsleafrs(:,:)
       real *8, allocatable :: wtsleafrs(:), Vmunu2(:,:)
       real *8, allocatable :: Vmunu(:,:)
+      real *8 :: alpha
+      integer :: m, n, lda, ldb, ldc
       ! 
       timeinfo = 0.0d0
       !
@@ -326,16 +328,32 @@
       fvalsleafrs = reshape(fvalsleaf, [nd, npbox * nleafbox])
       wtsleafrs = reshape(wtsleaf, [npbox * nleafbox])
       fvalsleafrs = fvalsleafrs * spread(wtsleafrs, 1, nd)
-      ! Vmunu2 = matmul(fvalsleafrs, transpose(potleafrs))
-      !$omp parallel default(none) &
-      !$omp& shared(nd, potleafrs, fvalsleafrs, Vmunu2) &
-      !$omp& private(ell) 
-      !$omp do
-      do ell = 1,nd
-        Vmunu2(:, ell) = matmul(fvalsleafrs, potleafrs(ell, :))
-      enddo
-      !$omp end do
-      !$omp end parallel
+      ! ! Vmunu2 = matmul(fvalsleafrs, transpose(potleafrs))
+      ! !$omp parallel default(none) &
+      ! !$omp& shared(nd, potleafrs, fvalsleafrs, Vmunu2) &
+      ! !$omp& private(ell) 
+      ! !$omp do
+      ! do ell = 1,nd
+      !   Vmunu2(:, ell) = matmul(fvalsleafrs, potleafrs(ell, :))
+      ! enddo
+      ! !$omp end do
+      ! !$omp end parallel
+
+      alpha = 1.0d0
+      beta = 0.0d0
+      m = nd
+      n = 1  ! Single column output
+      k = npbox * nleafbox  ! Inner dimension
+      lda = nd
+      ldb = k
+      ldc = nd
+      !$omp parallel do default(none) &
+      !$omp& shared(nd, npbox, nleafbox, fvalsleafrs, potleafrs, Vmunu2, alpha, beta, m, n, k, lda, ldb, ldc)
+      do ell = 1, nd
+          call dgemm('N', 'N', m, n, k, alpha, fvalsleafrs, lda, potleafrs(ell, :), ldb, beta, Vmunu2(:, ell), ldc)
+      end do
+      !$omp end parallel do
+      
       Vmunu2 =  (1.0d0/ratio**3)*Vmunu2
       Vmunu = Vmunu2
       t2 = omp_get_wtime()
@@ -346,26 +364,26 @@
 
       ! write
       call h5fcreate_f(output_filename, H5F_ACC_TRUNC_F,isdf_file_id_wt,error) ! Create a new HDF5 file
-      ! write pot
-      dims_wt = (/nd, npbox, nboxes/)
-      call h5screate_simple_f(3, dims_wt, isdf_dataspace_id_wt, error) ! Create a dataspace for the new dataset
-      call h5dcreate_f(isdf_file_id_wt, "pot", H5T_NATIVE_DOUBLE, &
-                    isdf_dataspace_id_wt, isdf_dataset_id_wt, error)
-      call h5dwrite_f(isdf_dataset_id_wt, H5T_NATIVE_DOUBLE, pot, &
-                    dims_wt, error) 
-      if (error == 0) then
-        print*, "Write variable pot to HDF5 file."
-      endif
-      ! write potleaf
-      dims_wt = (/nd, npbox, nleafbox/)
-      call h5screate_simple_f(3, dims_wt, isdf_dataspace_id_wt, error) ! Create a dataspace for the new dataset
-      call h5dcreate_f(isdf_file_id_wt, "potleaf", H5T_NATIVE_DOUBLE, &
-                    isdf_dataspace_id_wt, isdf_dataset_id_wt, error)
-      call h5dwrite_f(isdf_dataset_id_wt, H5T_NATIVE_DOUBLE, potleaf, &
-                    dims_wt, error) 
-      if (error == 0) then
-        print*, "Write variable potleaf to HDF5 file."
-      endif
+      ! ! write pot
+      ! dims_wt = (/nd, npbox, nboxes/)
+      ! call h5screate_simple_f(3, dims_wt, isdf_dataspace_id_wt, error) ! Create a dataspace for the new dataset
+      ! call h5dcreate_f(isdf_file_id_wt, "pot", H5T_NATIVE_DOUBLE, &
+      !               isdf_dataspace_id_wt, isdf_dataset_id_wt, error)
+      ! call h5dwrite_f(isdf_dataset_id_wt, H5T_NATIVE_DOUBLE, pot, &
+      !               dims_wt, error) 
+      ! if (error == 0) then
+      !   print*, "Write variable pot to HDF5 file."
+      ! endif
+      ! ! write potleaf
+      ! dims_wt = (/nd, npbox, nleafbox/)
+      ! call h5screate_simple_f(3, dims_wt, isdf_dataspace_id_wt, error) ! Create a dataspace for the new dataset
+      ! call h5dcreate_f(isdf_file_id_wt, "potleaf", H5T_NATIVE_DOUBLE, &
+      !               isdf_dataspace_id_wt, isdf_dataset_id_wt, error)
+      ! call h5dwrite_f(isdf_dataset_id_wt, H5T_NATIVE_DOUBLE, potleaf, &
+      !               dims_wt, error) 
+      ! if (error == 0) then
+      !   print*, "Write variable potleaf to HDF5 file."
+      ! endif
       ! write Vmunu
       vector_dims = (/nd,nd/)
       call h5screate_simple_f(2,vector_dims,isdf_dataspace_id_wt,error)
