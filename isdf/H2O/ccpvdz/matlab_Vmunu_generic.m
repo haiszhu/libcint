@@ -165,8 +165,8 @@ Vmunu = h5read(output_filename, '/Vmunu');
 disp("=========Start Vijkl computation=======");
 tic
 Vijkl = zeros(Norb,Norb,Norb,Norb);
-% Vijkl = computeVijkl_mex(nd, Norb, idcoefs, Vmunu, Vijkl);
-Vijkl = computeVijkl(nd, Norb, idcoefs, Vmunu, Vijkl);
+Vijkl = computeVijkl_mex(nd, Norb, idcoefs, Vmunu, Vijkl);
+% Vijkl = computeVijkl(nd, Norb, idcoefs, Vmunu, Vijkl);
 time = toc;
 disp("    Vijkl time is : " + time + " seconds");
 disp("=========End Vijkl computation=======");

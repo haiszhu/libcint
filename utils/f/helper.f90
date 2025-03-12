@@ -12,6 +12,9 @@
       real *8, allocatable :: collocation_matrix_kl(:)
       real *8, allocatable :: outer_product(:, :)
       integer :: i, j, k, l, tmpidx
+      real *8, allocatable :: collocation_matrix_i(:,:)
+      real *8, allocatable :: collocation_matrix_k(:,:)
+      real *8, allocatable :: tmpmat(:, :)
 
       ! Allocate collocation_matrix (nd × Norb^2)
       allocate(collocation_matrix(nd, Norb**2))
@@ -39,6 +42,9 @@
       ! Allocate temporary vectors
       allocate(collocation_matrix_ij(nd), collocation_matrix_kl(nd))
       allocate(outer_product(nd, nd))
+      allocate(collocation_matrix_i(nd,Norb))
+      allocate(collocation_matrix_k(Norb,nd))
+      allocate(tmpmat(Norb, Norb))
 
       ! Compute Vijkl
       !$omp parallel do &
@@ -48,12 +54,10 @@
       do i = 1, Norb
         do j = 1, Norb
           collocation_matrix_ij = collocation_matrix(:,(i-1)*Norb+j)
+          collocation_matrix_ij = matmul(Vmunu,collocation_matrix_ij)
           do k = 1, Norb
             do l = 1, Norb
-              collocation_matrix_kl = collocation_matrix(:,(k-1)*Norb+l)
-              outer_product = spread(collocation_matrix_ij, 2, nd) * &
-                              spread(collocation_matrix_kl, 1, nd)
-              Vijkl(i, j, k, l) = sum(Vmunu * outer_product)
+              Vijkl(i, j, k, l) = sum(collocation_matrix_ij * collocation_matrix(:,(k-1)*Norb+l))
             enddo
           enddo
         enddo
@@ -63,5 +67,7 @@
       ! Deallocate arrays
       deallocate(collocation_matrix, collocation_matrix_ij)
       deallocate(collocation_matrix_kl, outer_product)
+      deallocate(collocation_matrix_i,collocation_matrix_k)
+      deallocate(tmpmat)
 
       endsubroutine computeVijkl
