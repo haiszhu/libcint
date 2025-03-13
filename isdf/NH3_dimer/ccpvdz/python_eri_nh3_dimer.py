@@ -45,7 +45,7 @@ print(eri)
 print(eri.shape)
 
 # Read ERI from Hai
-with h5py.File('ERI_nh3_dimer_ccpvdz_1e-03.h5', 'r') as ar:
+with h5py.File('ERI_nh3_dimer_ccpvdz_1e-3.h5', 'r') as ar:
     eri0 = ar['DS1'][()]
 
 diff = eri - eri0
