@@ -11,10 +11,10 @@ clear all
 % setup
 % isdf_base_path = '/mnt/home/cyeh/ceph/papers/isdf_adaptive/H2O_dimer/ccpvdz/isdf_adap/';
 bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
-treefun_order = 8;
-treefun_eps = 1e-06; 
+treefun_order = 6;
+treefun_eps = 1e-04; 
 isdf_eps = 1e-3;
-nd = 2000;
+nd = 2800;
 
 % treefun_order = 6;
 % treefun_eps = 1e-02; 
