@@ -57,7 +57,7 @@ ndim = 3;
 ratio = 0.5/rad; % from boxlen to 1
 ipoly = 0;
 f2 = f; 
-f2.n = floor(1.5*f.n);
+f2.n = floor(1.5*f.n)+1;
 [src,nleafbox,srcleaf,wtsleaf,norder,npbox,nboxes,nlevels,ltree,itree,iptr,centers,boxsize] = treefun2bdmk(f2,ndim,ratio,ipoly);
 if 1
   DS1 = src/ratio;
