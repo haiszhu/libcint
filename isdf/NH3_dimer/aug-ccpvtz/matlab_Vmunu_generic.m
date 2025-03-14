@@ -14,7 +14,7 @@ bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
 treefun_order = 6;
 treefun_eps = 1e-04; 
 isdf_eps = 1e-3;
-nd = 2500;
+nd = 2200;
 
 % treefun_order = 4;
 % treefun_eps = 1e-02; 
