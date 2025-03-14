@@ -185,3 +185,4 @@ H5D.write(vijkl_dataset_id, 'H5T_NATIVE_DOUBLE', 'H5S_ALL', 'H5S_ALL', 'H5P_DEFA
 H5D.close(vijkl_dataset_id);
 H5S.close(vijkl_dataspace_id);
 H5F.close(file_id);
+system(sprintf('rm -f %s', isdf_filename))
