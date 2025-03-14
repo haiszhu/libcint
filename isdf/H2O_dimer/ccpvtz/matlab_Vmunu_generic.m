@@ -16,9 +16,9 @@ treefun_eps = 1e-06;
 isdf_eps = 1e-3;
 nd = 1500;
 
-nd = 2;
-treefun_order = 4;
-treefun_eps = 1e-01; 
+% nd = 2;
+% treefun_order = 4;
+% treefun_eps = 1e-01; 
 
 %%% resolve tree on cgto
 rad = 15;
