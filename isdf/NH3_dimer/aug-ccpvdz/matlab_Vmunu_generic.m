@@ -14,10 +14,11 @@ bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
 treefun_order = 8;
 treefun_eps = 1e-06; 
 isdf_eps = 1e-3;
-nd = 1500;
+nd = 2500;
 
-% treefun_order = 6;
+% treefun_order = 4;
 % treefun_eps = 1e-02; 
+% nd = 6;
 
 %%% resolve tree on cgto
 rad = 15;
@@ -42,11 +43,19 @@ opts = struct('balance',true,...
 func = @(x,y,z) mol.eval_gto(eval_name, cat(4,x,y,z));
 % func = @(x,y,z) mol.eval_gto2(eval_name, cat(4,x,y,z));
 disp("=========Start treefun=======");
+tic
 f = treefun3(func,[-rad rad -rad rad -rad rad],treefun_order,opts);
+time = toc;
+disp("    treefun time is : " + time + " seconds");
+disp("    treefun order is : " + treefun_order);
+disp("    treefun num of boxes is : " + size(f.domain,2));
 disp("=========End treefun=======");
+disp("    ");
 % figure(1),clf,plot(f,func);
 
 %%% treefun to bdmk
+disp("=========Start upsample adaptive grid=======");
+tic
 Norb = mol.nao_nr; % 
 ndim = 3;
 ratio = 0.5/rad; % from boxlen to 1
@@ -59,8 +68,14 @@ if 1
 else
   DS1 = srcleaf/ratio;
 end
+time = toc;
+disp("    upsample adaptive grid time is : " + time + " seconds");
+disp("=========End upsample adaptive grid=======");
+disp("    ");
 
 %%% eval cgto
+disp("=========Start Norb^2 basis eval=======");
+tic
 src0 = src/ratio;
 npts = numel(src0(1,:));
 fvals0 = squeeze(mol.eval_gto(eval_name, cat(4,squeeze(src0(1,:,:)),squeeze(src0(2,:,:)),squeeze(src0(3,:,:)))));
@@ -73,17 +88,37 @@ for i=1:Norb
     fvals_ij(:,tmpidx) = fvals0(:,i).*fvals0(:,j);
   end
 end
+time = toc;
+disp("    Norb^2 basis eval time is : " + time + " seconds");
+disp("=========End Norb^2 basis eval=======");
+disp("    ");
+
+%%% load isdf data
+if 0
+  idfname = 'isdf_1e-6.h5'; % 
+  info = h5info(idfname);
+  Np = h5read(idfname, '/Np');
+  collocation_matrix = h5read(idfname, '/collocation_matrix');
+  interpolating_points = h5read(idfname, '/interpolating_points');
+  interpolating_vectors = h5read(idfname, '/interpolating_vectors');
+  kpts = h5read(idfname, '/kpts');
+  nkpts_ibz = h5read(idfname, '/nkpts_ibz');
+  nqpts_ibz = h5read(idfname, '/nqpts_ibz');
+  qpts = h5read(idfname, '/qpts');
+  collocation_matrix = squeeze(collocation_matrix(1,:,:));
+  interpolating_vectors = squeeze(interpolating_vectors(1,:,:));
+end
 
 %%%%%%
-A = fvals_ij;
+disp("=========Start interpolative decomposition=======");
 tic
+A = fvals_ij;
 [SK,RD,T] = id(A,nd); %
 Ask = A(:,SK);
 idcoefs = zeros(nd,size(A,2));
 idcoefs(:,SK) = eye(nd);
 idcoefs(:,RD) = T;
 % Aid = Ask*idcoefs;
-toc
 dims_rd = [2,npts,nd];
 interpolating_vectors = zeros(dims_rd);
 interpolating_vectors(1,:,:) = Ask;
@@ -97,8 +132,14 @@ ipv_dataset_id = H5D.create(file_id, '/interpolating_vectors', 'H5T_NATIVE_DOUBL
 H5D.write(ipv_dataset_id, 'H5T_NATIVE_DOUBLE', 'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', interpolating_vectors);
 H5D.close(ipv_dataset_id);
 H5F.close(file_id);
+time = toc;
+disp("    id time is : " + time + " seconds");
+disp("=========End interpolative decomposition=======");
+disp("    ");
 
 %%% write treefun data (bdmk format) to .h5
+disp("=========Start bdmk=======");
+tic
 ikernel = 1;
 beta = 6.0d0;
 write_treefun_h5(molname,basmod,ndim,treefun_eps,ikernel,beta,...
@@ -116,41 +157,23 @@ fid = fopen(log_filename, 'w');
 fprintf(fid, '%s\n', cmdout2);
 fclose(fid);
 fprintf('Saved bdmk output to: %s\n', log_filename);
+time = toc;
+disp("    bdmk time is : " + time + " seconds");
+disp("=========End bdmk=======");
+disp("    ");
 
 %%% Vmunu
 Vmunu = h5read(output_filename, '/Vmunu');
 
 %%% Vijkl, after loading isdf_file and output_file
-collocation_matrix2 = zeros(nd,Norb,Norb);
-idcoefs;
-tmpidx = 0;
-for i=1:Norb
-  for j=1:i
-    tmpidx = tmpidx + 1;
-    collocation_matrix2(:,j,i) = idcoefs(:,tmpidx);
-  end
-end
-for i=1:Norb
-  for j=i+1:Norb
-    collocation_matrix2(:,j,i) = collocation_matrix2(:,i,j);
-  end
-end
-collocation_matrix2 = reshape(collocation_matrix2,[nd Norb^2]);
+disp("=========Start Vijkl computation=======");
+tic
 Vijkl = zeros(Norb,Norb,Norb,Norb);
-for i = 1:Norb
-  for j = 1:Norb
-    % collocation_matrix_ij = collocation_matrix(i,:).*collocation_matrix(j,:);
-    collocation_matrix_ij = collocation_matrix2(:,(i-1)*Norb+j);
-    for k = 1:Norb
-      for l = 1:Norb
-        % collocation_matrix_kl = collocation_matrix(k,:).*collocation_matrix(l,:);
-        collocation_matrix_kl = collocation_matrix2(:,(k-1)*Norb+l);
-        Vijkl(i,j,k,l) = sum(Vmunu.*( collocation_matrix_ij(:) ...
-                                     .*collocation_matrix_kl(:)'),'all');
-      end
-    end
-  end
-end
+Vijkl = computeVijkl_mex(nd, Norb, idcoefs, Vmunu, Vijkl);
+% Vijkl = computeVijkl(nd, Norb, idcoefs, Vmunu, Vijkl);
+time = toc;
+disp("    Vijkl time is : " + time + " seconds");
+disp("=========End Vijkl computation=======");
 
 % save
 eri_mat_filename = ['ERI_' molname '_' erase(erase(basmod, '.dat'),'-') '_' eps_string '.mat'];
@@ -166,6 +189,4 @@ H5D.write(vijkl_dataset_id, 'H5T_NATIVE_DOUBLE', 'H5S_ALL', 'H5S_ALL', 'H5P_DEFA
 H5D.close(vijkl_dataset_id);
 H5S.close(vijkl_dataspace_id);
 H5F.close(file_id);
-
-
-% keyboard
+system(sprintf('rm -f %s', isdf_filename))

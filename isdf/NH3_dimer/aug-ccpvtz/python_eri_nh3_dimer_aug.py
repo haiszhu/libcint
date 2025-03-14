@@ -20,7 +20,7 @@ geom='''
 mol_nh3_dimer = gto.M(
         verbose=7, 
         atom=geom, 
-        basis='aug-ccpvdz')
+        basis='aug-ccpvtz')
 
 # 
 x, y, z = np.meshgrid(np.linspace(0,1,5),np.linspace(0,1,5),np.linspace(0,1,5),
@@ -39,7 +39,7 @@ print(eri)
 print(eri.shape)
 
 # Read ERI from Hai
-with h5py.File('ERI_nh3_dimer_augccpvdz_1e-3.h5', 'r') as ar:
+with h5py.File('ERI_nh3_dimer_augccpvtz_1e-3.h5', 'r') as ar:
     eri0 = ar['DS1'][()]
 
 diff = eri - eri0

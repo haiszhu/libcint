@@ -33,7 +33,7 @@ geom = sprintf([ ...
     'H   0.849471  -0.658193   0.000000.\n',...
     'H   2.158621  -0.136396   0.809565\n']),
 molname = 'nh3_dimer';
-basmod = 'cc-pvdz.dat';
+basmod = 'cc-pvtz.dat';
 basis = fullfile(fileparts(mfilename('fullpath')), '../../../basis', basmod);
 mol = gto(geom,basis);
 eval_name = 'GTOval_sph';
