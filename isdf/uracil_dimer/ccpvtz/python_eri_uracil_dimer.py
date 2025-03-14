@@ -36,7 +36,7 @@ geom='''
 mol_uracil_dimer = gto.M(
         verbose=7, 
         atom=geom, 
-        basis='aug-ccpvdz')
+        basis='ccpvtz')
 
 # 
 x, y, z = np.meshgrid(np.linspace(0,1,5),np.linspace(0,1,5),np.linspace(0,1,5),
@@ -46,16 +46,16 @@ xyz = np.column_stack([x.flatten(order='F'),y.flatten(order='F'),z.flatten(order
 # Evaluate GTOs at the specified points
 vals = np.array(mol_uracil_dimer.eval_gto('GTOval_sph',xyz))
 print(vals.shape)
-savemat("uracil_dimer_aug_basis_check.mat", {'x': x, 'y': y, 'z': z, 'xyz': xyz, 'vals': vals})
+savemat("uracil_dimer_basis_check.mat", {'x': x, 'y': y, 'z': z, 'xyz': xyz, 'vals': vals})
 
-# # Calculate ERI for a given molecule and a AO basis: 
-# # eri has dimenions (nao, nao, nao, nao) where nao is the number of AO basis functions
-# eri = mol_uracil_dimer.intor('int2e')
-# print(eri)
-# print(eri.shape)
+# Calculate ERI for a given molecule and a AO basis: 
+# eri has dimenions (nao, nao, nao, nao) where nao is the number of AO basis functions
+eri = mol_uracil_dimer.intor('int2e')
+print(eri)
+print(eri.shape)
 
 # Read ERI from Hai
-with h5py.File('ERI_uracil_dimer_augccpvdz_1e-3.h5', 'r') as ar:
+with h5py.File('ERI_uracil_dimer_ccpvtz_1e-3.h5', 'r') as ar:
     eri0 = ar['DS1'][()]
 
 diff = eri - eri0

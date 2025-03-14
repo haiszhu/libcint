@@ -36,7 +36,7 @@ geom='''
 mol_uracil_dimer = gto.M(
         verbose=7, 
         atom=geom, 
-        basis='aug-ccpvdz')
+        basis='aug-ccpvtz')
 
 # 
 x, y, z = np.meshgrid(np.linspace(0,1,5),np.linspace(0,1,5),np.linspace(0,1,5),
@@ -55,7 +55,7 @@ savemat("uracil_dimer_aug_basis_check.mat", {'x': x, 'y': y, 'z': z, 'xyz': xyz,
 # print(eri.shape)
 
 # Read ERI from Hai
-with h5py.File('ERI_uracil_dimer_augccpvdz_1e-3.h5', 'r') as ar:
+with h5py.File('ERI_uracil_dimer_augccpvtz_1e-3.h5', 'r') as ar:
     eri0 = ar['DS1'][()]
 
 diff = eri - eri0
