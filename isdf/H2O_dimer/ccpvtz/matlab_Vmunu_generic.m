@@ -12,9 +12,9 @@ addpath('../../../treefun/')
 % isdf_base_path = '/mnt/home/cyeh/ceph/papers/isdf_adaptive/H2O_dimer/ccpvdz/isdf_adap/';
 bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
 treefun_order = 6;
-treefun_eps = 1e-05; 
+treefun_eps = 1e-04; 
 isdf_eps = 1e-3;
-nd = 2400;
+nd = 2800;
 
 % nd = 2;
 % treefun_order = 4;
