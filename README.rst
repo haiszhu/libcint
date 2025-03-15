@@ -8,11 +8,20 @@ version 6.1.1
 
   - treefun: if already cloned, run git submodule update --init --recursive
 
-* install: make (1st time need to run mkdir bin before make)
+* install: make (1st time need to run mkdir bin before make, this builds libcint matlab gateway function)
 
-  - bdmk: precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
+  - bdmk: in ./utils/f/ folder, run make to build int2-bdmk-mlscf executable, you need to modify path to bdmk fortran source file
+  - bdmk(deprecated): precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
 
-* test: 
+* test: matlab_Vmunu_generic.m
+
+  - in ./isdf folder, there are examples for H2O, H2O dimer, NH3 dimer, Uracil dimer with ccpvdz, ccpvtz, aug-ccpvdz, aug-ccpvtz basis
+  - adaptive grid : build adaptive tree of order treefun_order for Norb basis, then upsample each leaf node to order ~1.5*treefun_order
+  - id : single id.m matlab file from https://github.com/klho/FLAM for generating nd interpolating_vectors and idcoefs
+  - bdmk : matlab system(' int2-bdmk-mlscf ') call, you need access to the private DMK repo
+  - Vmunu & Vijkl : run python python_eri_yourmole.py to verify Vijkl value
+
+* test(deprecated): 
 
   - matlab: matlab_eri_h2o_ccpvdz.m  (computes ERI_h2o_ccpvdz.h5)
   - python: matlab_eri_h2o_ccpvdz.py  (requires ERI_h2o_ccpvdz.h5 for verification)
