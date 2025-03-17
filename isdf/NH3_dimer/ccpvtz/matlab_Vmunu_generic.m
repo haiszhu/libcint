@@ -12,10 +12,10 @@ clear all
 % setup
 % isdf_base_path = '/mnt/home/cyeh/ceph/papers/isdf_adaptive/H2O_dimer/ccpvdz/isdf_adap/';
 bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
-treefun_order = 8;
-treefun_eps = 1e-06; 
+treefun_order = 6;
+treefun_eps = 1e-04; 
 isdf_eps = 1e-3;
-nd = 1400;
+nd = 2500;
 
 % treefun_order = 4;
 % treefun_eps = 1e-02; 
@@ -62,7 +62,7 @@ ndim = 3;
 ratio = 0.5/rad; % from boxlen to 1
 ipoly = 0;
 f2 = f; 
-f2.n = floor(1.5*f.n);
+f2.n = floor(1.5*f.n)-1;
 [src,nleafbox,srcleaf,wtsleaf,norder,npbox,nboxes,nlevels,ltree,itree,iptr,centers,boxsize] = treefun2bdmk(f2,ndim,ratio,ipoly);
 if 1
   DS1 = src/ratio;
