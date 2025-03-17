@@ -67,7 +67,6 @@ disp("    treefun time is : " + time + " seconds");
 disp("    treefun order is : " + treefun_order);
 disp("    treefun num of boxes is : " + size(f.domain,2));
 disp("=========End treefun=======");
-disp("    ");
 % figure(1),clf,plot(f,func);
 
 %%% treefun to bdmk
@@ -130,12 +129,14 @@ end
 disp("=========Start interpolative decomposition=======");
 tic
 A = fvals_ij;
+tic
 [SK,RD,T] = id(A,nd); %
 Ask = A(:,SK);
 idcoefs = zeros(nd,size(A,2));
 idcoefs(:,SK) = eye(nd);
 idcoefs(:,RD) = T;
 % Aid = Ask*idcoefs;
+toc
 dims_rd = [2,npts,nd];
 interpolating_vectors = zeros(dims_rd);
 interpolating_vectors(1,:,:) = Ask;
@@ -207,3 +208,5 @@ H5D.close(vijkl_dataset_id);
 H5S.close(vijkl_dataspace_id);
 H5F.close(file_id);
 system(sprintf('rm -f %s', isdf_filename))
+
+% keyboard
