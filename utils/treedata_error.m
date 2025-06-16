@@ -1,4 +1,4 @@
-function relerr = treedata_error(f,func)
+function [relerr,maxval] = treedata_error(f,func)
 %
 %
 
@@ -12,8 +12,8 @@ Eval(:,2) = x;
 for k=3:p
     Eval(:,k) = 2*x.*Eval(:,k-1)-Eval(:,k-2);
 end
-err = zeros(numel(ids),1);
-maxval = zeros(numel(ids),1);
+errvals = zeros(numel(ids),nd);
+maxvals = zeros(numel(ids),nd);
 for k=1:numel(ids)
   % k-th leaf box
   idk = ids(k);
@@ -36,10 +36,15 @@ for k=1:numel(ids)
   tmp1 = permute(tensorprod(Eval,coeffsk,2,1),[2 3 1 4]);
   tmp2 = permute(tensorprod(Eval,tmp1,2,1),[2 3 1 4]);
   vals = squeeze(permute(tensorprod(Eval,tmp2,2,1),[2 3 1 4]));
-  err(k) = max(abs(F(:)-vals(:)));
-  maxval(k) = max(abs(F(:)));
+  %
+
+  %
+  errvals(k,:) = max(reshape(abs(F-vals),[],nd),[],1);
+  maxvals(k,:) = max(reshape(abs(F),[],nd),[],1);
 
 end
-relerr = max(err)/max(maxval);
-
+maxval_nd = max(maxvals,[],1);
+relerr_nd = max(errvals,[],1)./maxval_nd;
+relerr = max(relerr_nd);
+maxval = max(maxval_nd);
 end
