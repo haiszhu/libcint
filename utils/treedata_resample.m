@@ -17,7 +17,7 @@ for k=1:numel(ids)
   % k-th leaf box
   idk = ids(k);
   domaink = f.domain(:,idk);
-  % uniform points
+  % chebyshev points
   sclx = diff(domaink(1:2));
   scly = diff(domaink(3:4));
   sclz = diff(domaink(5:6));

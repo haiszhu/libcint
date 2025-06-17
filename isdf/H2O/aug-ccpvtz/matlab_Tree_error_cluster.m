@@ -57,8 +57,9 @@ for i = 1:numel(epsvals)
   relerrs(i) = relerr;
 
   %=================== err on order p grid, Norb^2 basis ====================
-  f2 = treedata_resample(f,func2,treefun_order);
-  relerr2 = treedata_error(f2,func2);
+  % f2 = treedata_resample(f,func2,treefun_order);
+  % relerr2 = treedata_error(f2,func2);
+  relerr2 = treedata_resample_error(f,func2,treefun_order);
   disp("========= Relative L infinity error on order p grid =======");
   disp("    Error on Norb^2 basis : " + relerr2 );
   disp("    ");
@@ -66,8 +67,9 @@ for i = 1:numel(epsvals)
   
   %=================== err on order 2*p grid, Norb^2 basis ==================
   upfactor = 1.5;
-  f2up = treedata_resample(f,func2,ceil(upfactor*treefun_order));
-  relerr2up = treedata_error(f2up,func2);
+  % f2up = treedata_resample(f,func2,ceil(upfactor*treefun_order));
+  % relerr2up = treedata_error(f2up,func2);
+  relerr2up = treedata_resample_error(f,func2,ceil(upfactor*treefun_order));
   disp("========= Relative L infinity error on order 2*p grid =======");
   disp("    Error on Norb^2 basis : " + relerr2up );
   disp("    ");
