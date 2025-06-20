@@ -14,12 +14,13 @@ HDF5_DIR = /opt/homebrew/lib
 endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
-OPENBLAS_DIR := $(shell dirname $$(dirname `which openblas`))
+# OPENBLAS_DIR := $(shell dirname $$(dirname `which openblas`))
+OPENBLAS_DIR := $(shell echo $$LD_LIBRARY_PATH | tr ':' '\n' | grep openblas | head -n 1 | sed 's/\/lib$$//')
 $(info OPENBLAS_DIR: $(OPENBLAS_DIR))
 OPENBLAS_LIB := -L$(OPENBLAS_DIR)/lib -lopenblas
-# OPENBLAS_DIR = /home/hai/git/OpenBLAS
 SRC_DIR = /mnt/home/hzhu1/Documents/test/job/bdmkf
-HDF5_DIR := $(shell dirname $$(dirname `which h5fc`))
+# HDF5_DIR := $(shell dirname $$(dirname `which h5fc`))
+HDF5_DIR := $(shell echo $$LD_LIBRARY_PATH | tr ':' '\n' | grep hdf5 | head -n 1 | sed -E 's/\/lib64$$//; s/\/lib$$//')
 $(info HDF5_DIR: $(HDF5_DIR))
 HDF5_INCLUDE := -I$(HDF5_DIR)/include
 HDF5_LIB := $(HDF5_DIR)/lib
@@ -43,20 +44,10 @@ endif
 
 ifeq ($(HOST),linux-gfortran)
 FC = gfortran
-# FFLAGS = -fPIC -O3 -march=native -std=legacy -fopenmp -funroll-loops -c -w
 FFLAGS = -fPIC -O3 -march=native -std=legacy -funroll-loops -c -w
 FFLAGS_OMP = $(FFLAGS) -fopenmp
-# FLINK = gfortran -fopenmp -w -o $(EXEC)
 FLINK = gfortran -w -o $(EXEC)
 FEND = $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm
-# FEND = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
-# FEND = -lopenblas
-# LBLAS = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
-# LBLAS = -lopenblas
-# LBLAS = /opt/intel/oneapi/mkl/latest/lib/libmkl_intel_lp64.a \
-#         /opt/intel/oneapi/mkl/latest/lib/libmkl_sequential.a \
-#         /opt/intel/oneapi/mkl/latest/lib/libmkl_core.a \
-#         -lpthread -lm -ldl
 LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas
 MWRAP = ~/mwrap/mwrap
 MEX = mex
@@ -144,7 +135,7 @@ helper.o: helper.f90
 
 int2-bdmk-mlscf: $(OBJECTS) bdmk_mlscf.f90
 	$(FC) -O3 -o int2-bdmk-mlscf -fopenmp bdmk_mlscf.f90 $(OBJECTS) \
-				$(OPENBLAS_LIB) -lpthread -lm \
+				$(OPENBLAS_LIB) -lm \
 				$(HDF5_INCLUDE) -L$(HDF5_DIR) -lhdf5_fortran -lhdf5
 
 mex: helper_module.mw
