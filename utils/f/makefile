@@ -9,7 +9,7 @@ ARCH := $(shell uname -m)
 ifeq ($(UNAME), Darwin)
 	HOST=osx
 	ifeq ($(ARCH), arm64)
-		OPENBLAS_DIR = /Users/hzhu/git/OpenBLAS
+		OPENBLAS_DIR = /opt/homebrew/Cellar/openblas-singlethread/0.3.29/lib
 		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
 		HDF5_INCLUDE = -I/opt/homebrew/include
 		HDF5_DIR = /opt/homebrew/lib
@@ -35,11 +35,8 @@ FC = gfortran
 FFLAGS = -fPIC -O3 -march=native -std=legacy -funroll-loops -c -w
 FFLAGS_OMP = $(FFLAGS) -fopenmp
 FLINK = gfortran -w -o $(EXEC)
-FEND = $(OPENBLAS_DIR)/libopenblas_vortex-r0.3.29.a -lpthread -lm
-# FEND = -L/opt/intel/oneapi/lib/intel64 -Wl,--no-as-needed -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
-#FEND = -lopenblas -Wl,--no-as-needed 
-# LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
-LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas_vortex-r0.3.29
+FEND = $(OPENBLAS_DIR)/libopenblas.a -lm
+LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas
 MWRAP = ~/mwrap/mwrap
 MEX = /Applications/MATLAB_R2023b.app/bin/mex
 endif
@@ -147,7 +144,7 @@ helper.o: helper.f90
 
 int2-bdmk-mlscf: $(OBJECTS) bdmk_mlscf.f90
 	$(FC) -O3 -o int2-bdmk-mlscf -fopenmp bdmk_mlscf.f90 $(OBJECTS) \
-				-L. $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm \
+				-L. $(OPENBLAS_DIR)/libopenblas.a -lm \
 				$(HDF5_INCLUDE) -L$(HDF5_DIR) -lhdf5_fortran -lhdf5
 
 mex: helper_module.mw
