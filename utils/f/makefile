@@ -22,7 +22,7 @@ ifeq ($(UNAME), Darwin)
 endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
-OPENBLAS_DIR = /home/hai/git/OpenBLAS
+OPENBLAS_DIR = /home/linuxbrew/.linuxbrew/Cellar/openblas-singlethread/0.3.29/lib
 SRC_DIR = /home/hai/Documents/Github/job/bdmkf
 HDF5_INCLUDE = -I/usr/include/hdf5/serial
 HDF5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/serial
@@ -48,15 +48,7 @@ FFLAGS = -fPIC -O3 -march=native -std=legacy -funroll-loops -c -w
 FFLAGS_OMP = $(FFLAGS) -fopenmp
 # FLINK = gfortran -fopenmp -w -o $(EXEC)
 FLINK = gfortran -w -o $(EXEC)
-FEND = $(OPENBLAS_DIR)/libopenblas.a -lpthread -lm
-# FEND = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
-# FEND = -lopenblas
-# LBLAS = -L/opt/intel/oneapi/mkl/latest/lib -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lm -ldl
-# LBLAS = -lopenblas
-# LBLAS = /opt/intel/oneapi/mkl/latest/lib/libmkl_intel_lp64.a \
-#         /opt/intel/oneapi/mkl/latest/lib/libmkl_sequential.a \
-#         /opt/intel/oneapi/mkl/latest/lib/libmkl_core.a \
-#         -lpthread -lm -ldl
+FEND = $(OPENBLAS_DIR)/libopenblas.a -lm
 LBLAS = -L$(OPENBLAS_DIR)/ -lopenblas
 MWRAP = ~/mwrap/mwrap
 MEX = mex
