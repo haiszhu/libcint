@@ -267,7 +267,7 @@ void lgamma_inc_like(long double *f, long double t, int m)
         }
 }
 
-inline double pow_(double base, int exponent)
+static inline double pow_(double base, int exponent)
 {
         int i;
         double result = 1;
@@ -280,7 +280,7 @@ inline double pow_(double base, int exponent)
         return result;
 }
 
-inline long double powl_(long double base, int exponent)
+static inline long double powl_(long double base, int exponent)
 {
         int i;
         long double result = 1.l;
