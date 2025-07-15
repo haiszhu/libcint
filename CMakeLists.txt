@@ -34,7 +34,8 @@ endif()
 
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2 -DNDEBUG")
 
-cmake_policy(SET CMP0042 NEW)
+set(CMAKE_C_STANDARD 99)
+
 include(GNUInstallDirs)
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -42,10 +43,6 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(QUADMATH)
 if(QUADMATH_FOUND)
   set(HAVE_QUADMATH_H 1 CACHE INTERNAL "Have QUADMATH")
-endif()
-
-if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.12)
-  cmake_policy(SET CMP0075 NEW)
 endif()
 
 include(CheckFunctionExists)
