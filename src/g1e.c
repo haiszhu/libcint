@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "cint_bas.h"
 #include "misc.h"
 #include "g1e.h"
