@@ -120,3 +120,21 @@ void GTOval_sph_generic_mwrap(int *ngrids, int *shls_slice, int *ao_loc,
     }
 }
 
+// evaluation of ith basis
+void GTOival_sph_generic_mwrap(int *i, int *ngrids, int *shls_slice, int *ao_loc,
+  double *aoi, double *coord, int *non0tab,
+  int *atm, int *natm, int *bas, int *nbas, double *env) {
+    uint8_t non0tab_uint8[ (size_t) *nbas ];
+    memset(non0tab_uint8, 1, (size_t) *nbas * sizeof(uint8_t));
+    int nao = ao_loc[shls_slice[1]] - ao_loc[shls_slice[0]];
+    #pragma omp parallel for
+    for (int j = 0; j < *ngrids; j++) {
+      double *current_coord = &coord[j * 3];
+      // double *current_ao = &ao[j * nao];
+      // GTOval_sph(1, shls_slice, ao_loc, current_ao, current_coord, non0tab_uint8, atm, *natm, bas, *nbas, env);
+      // aoi[j] = current_ao[*i-1];
+      double *current_aoi = &aoi[j];
+      GTOival_sph(*i, 1, shls_slice, ao_loc, current_aoi, current_coord, non0tab_uint8, atm, *natm, bas, *nbas, env);
+    }
+}
+

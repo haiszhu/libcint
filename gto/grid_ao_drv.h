@@ -73,6 +73,11 @@ void GTOeval_sph_drv(FPtr_eval feval, FPtr_exp fexp, double fac,
                      double *ao, double *coord, uint8_t *non0table,
                      int *atm, int natm, int *bas, int nbas, double *env);
 
+void GTOieval_sph_drv(FPtr_eval feval, FPtr_exp fexp, double fac,
+                     int i, int ngrids, int param[], int *shls_slice, int *ao_loc,
+                     double *aoi, double *coord, uint8_t *non0table,
+                     int *atm, int natm, int *bas, int nbas, double *env);
+
 void GTOeval_cart_drv(FPtr_eval feval, FPtr_exp fexp, double fac,
                       int ngrids, int param[], int *shls_slice, int *ao_loc,
                       double *ao, double *coord, uint8_t *non0table,

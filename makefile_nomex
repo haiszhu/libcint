@@ -89,7 +89,7 @@ MY_OBJS = $(BINARY_DIR)/cgto.o
 # Targets
 .PHONY: all libcint np_helper cgto clean
 
-all: libcint np_helper cgto libcint.a np_helper.a cgto.a nomexfile
+all: libcint np_helper cgto libcint.a np_helper.a cgto.a gateway.c nomexfile
 
 $(BINARY_DIR)/%.o: $(CINT_SOURCE_DIR)/%.c 
 	$(CC) $(CFLAGS) -I$(ROOT_DIR)/include -I$(ROOT_DIR)/src -c $< -o $@

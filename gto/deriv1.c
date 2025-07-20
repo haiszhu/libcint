@@ -482,6 +482,24 @@ void GTOval_sph(int ngrids, int *shls_slice, int *ao_loc,
                         ngrids, param, shls_slice, ao_loc,
                         ao, coord, non0table, atm, natm, bas, nbas, env);
 }
+void GTOival_sph(int i, int ngrids, int *shls_slice, int *ao_loc,
+  double *aoi, double *coord, uint8_t *non0table,
+  int *atm, int natm, int *bas, int nbas, double *env)
+{
+        int param[] = {1, 1};
+        // int nao = ao_loc[shls_slice[1]] - ao_loc[shls_slice[0]];
+        // double *ao = (double *)malloc(sizeof(double) * nao * ngrids);
+        // GTOeval_sph_drv(GTOshell_eval_grid_cart, GTOcontract_exp0, 1,
+        //           ngrids, param, shls_slice, ao_loc,
+        //           ao, coord, non0table, atm, natm, bas, nbas, env);
+        // for (int j = 0; j < ngrids; j++) {
+        //   aoi[j] = ao[j * nao + (i - 1)];
+        // }
+        // free(ao);
+        GTOieval_sph_drv(GTOshell_eval_grid_cart, GTOcontract_exp0, 1,
+          i, ngrids, param, shls_slice, ao_loc,
+          aoi, coord, non0table, atm, natm, bas, nbas, env);
+}
 void GTOval_spinor(int ngrids, int *shls_slice, int *ao_loc,
                    double complex *ao, double *coord, uint8_t *non0table,
                    int *atm, int natm, int *bas, int nbas, double *env)
