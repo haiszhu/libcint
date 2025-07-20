@@ -261,6 +261,8 @@ mol.checkpts = checkpts;
 %% 2nd, with Norb^2 basis
 mol.eval_gto2 = @(eval_name, coords) myeval_gto2( eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
 
+%% 3rd, with just i-th basis
+mol.eval_gtoi = @(eval_name, coords, i) myeval_gtoi( eval_name, coords, i, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env);
 end
 
 function fi = myeval_gto(eval_name, coords, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env)
@@ -387,3 +389,77 @@ if contains(eval_name, 'GTOval_sph')
 end
 end
 
+function fi = myeval_gtoi(eval_name, coords, i, shls_slice, ao_loc, non0tab, atm, natm, bas, nbas, env)
+% global ANG_OF NCTR_OF 
+persistent ANG_OF NCTR_OF ndi;
+if isempty(ndi)
+  ANG_OF      = 2; % ...
+  NCTR_OF     = 4; % ...
+  ndi = 1;
+end
+if contains(eval_name, 'GTOval_sph')
+  dims = size(coords);
+  ndims_var = ndims(coords); % only support two cases
+  if ndims_var == 4
+    % assume something like n1 x n2 x n3 x 3, and only this
+    n1 = dims(1);
+    n2 = dims(2);
+    n3 = dims(3);
+    ngrids = n1*n2*n3;
+    x = coords(:,:,:,1);
+    y = coords(:,:,:,2);
+    z = coords(:,:,:,3);
+    xyz = [x(:), y(:), z(:)]';
+    xyz = xyz(:);
+    fi = zeros([ndi ngrids]); 
+    atm = reshape(atm',1,[]); % row major in C...
+    bas = reshape(bas',1,[]);
+    fi = GTOival_sph_generic_mwrap_mex(i, ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+    fi = reshape(fi,[ndi ngrids])';
+    fi = reshape(fi,[n1 n2 n3 ndi]);
+    % keyboard
+  elseif ndims_var == 2
+    n1 = dims(1);
+    n2 = dims(2);
+    if n1==3
+      xyz = coords;
+      ngrids = n2;
+      xyz = xyz(:);
+      %
+      fi = zeros([ndi ngrids]); 
+      atm = reshape(atm',1,[]); % row major in C...
+      bas = reshape(bas',1,[]);
+      fi = GTOival_sph_generic_mwrap_mex(i, ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+      %
+      if (n1==3) && (n2==3)
+        disp('I am assuming your input coords is xyz by num of grid pts.'); % what can I do...
+      end
+      fi = reshape(fi,[ndi ngrids]);
+      %
+    end
+    if (n1~=3) && (n2==3)
+      x = coords(:,1);
+      y = coords(:,2);
+      z = coords(:,3);
+      xyz = [x(:), y(:), z(:)]';
+      ngrids = n1;
+      xyz = xyz(:);
+      %
+      fi = zeros([ndi ngrids]); 
+      atm = reshape(atm',1,[]); % row major in C...
+      bas = reshape(bas',1,[]);
+      fi = GTOival_sph_generic_mwrap_mex(i, ngrids, shls_slice, ao_loc, fi, xyz, non0tab, atm, natm, bas, nbas, env);
+      %
+      fi = reshape(fi,[ndi ngrids])';
+      %
+    end
+    
+  else
+    xyz = [];
+    disp('Variable does not match expected tensor dimensions.');
+    fi = [];
+    % keyboard
+  end  
+  
+end
+end
