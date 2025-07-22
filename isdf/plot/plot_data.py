@@ -28,9 +28,13 @@ relerr2ups = relerr2ups[0:-1]
 
 # 
 plt.figure(figsize=(6,4))
-plt.loglog(epsvals, relerrs, 'o-', linewidth=2, label=r'$\max_{\tilde{T}} E_{\infty}^{(\phi_i)}$ on order $k$ grid')
-plt.loglog(epsvals, relerr2s, '^-', linewidth=2, label=r'$\max_{\tilde{T}} E_{\infty}^{(\rho_{ij})}$ on order $k$ grid')
-plt.loglog(epsvals, relerr2ups, 's-', linewidth=2, label=r'$\max_{T} E_{\infty}^{(\rho_{ij})}$ on order $1.5\times k$ grid')
+# plt.loglog(epsvals, relerrs, 'o-', linewidth=2, label=r'$\max_{\tilde{T}} E_{\infty}^{(\phi_i)}$ on order $k$ grid')
+# plt.loglog(epsvals, relerr2s, '^-', linewidth=2, label=r'$\max_{\tilde{T}} E_{\infty}^{(\rho_{ij})}$ on order $k$ grid')
+# plt.loglog(epsvals, relerr2ups, 's-', linewidth=2, label=r'$\max_{T} E_{\infty}^{(\rho_{ij})}$ on order $1.5\times k$ grid')
+plt.loglog(epsvals, relerrs, 'o-', linewidth=2, label=r'$\max_{i}\ E^{(\phi_i)}$ on $\tilde{T}$')
+plt.loglog(epsvals, relerr2s, '^-', linewidth=2, label=r'$\max_{ij}\ E^{(\rho_{ij})}$ on $\tilde{T}$')
+plt.loglog(epsvals, relerr2ups, 's-', linewidth=2, label=r'$\max_{ij}\ E^{(\rho_{ij})}$ on $T$')
+
 
 # legend
 plt.legend(fontsize=10, loc='best')
