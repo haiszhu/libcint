@@ -65,5 +65,5 @@ plt.grid(True)
 # 
 plt.tight_layout()
 plt.tight_layout()
-plt.savefig(f'{molname}_{basname}.png', bbox_inches='tight')
+plt.savefig(f'{molname}_{basname}.png', dpi=600, bbox_inches='tight')
 plt.show()
