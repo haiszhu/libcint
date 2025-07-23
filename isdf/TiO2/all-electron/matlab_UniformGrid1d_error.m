@@ -13,6 +13,8 @@ clear all
 bdmk_exec = '../../../utils/f/int2-bdmk-mlscf';
 treefun_order = 4;
 treefun_eps = 1e-03; 
+% treefun_order = 7;
+% treefun_eps = 1e-06; 
 isdf_eps = 1e-3;
 nd = 290;
 
@@ -25,8 +27,7 @@ geom = sprintf([ ...
     'O    -1.6  0.       0.\n']),
 molname = 'TiO2';
 % basmod = 'cc-pvdz.dat';
-% basmod = 'cc-pvdz-ccECP.dat';
-basmod = 'cc-pvtz-ccECP.dat';
+basmod = 'cc-pvtz.dat';
 basis = fullfile(fileparts(mfilename('fullpath')), '../../../basis', basmod);
 mol = gto(geom,basis);
 eval_name = 'GTOval_sph';
@@ -55,7 +56,7 @@ disp("    ");
 
 disp("=========Verify uniform grid error=======");
 disp("    This is actually a 1d slice... ");
-Nall = 2.^(6:12);
+Nall = 2.^(6:17);
 for j=1:numel(Nall)
   %
   N = Nall(j);
