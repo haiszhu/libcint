@@ -101,7 +101,7 @@ for j=1:numel(Nall)
   % disp("=========End of verifying uniform grid error=======");
   % disp("    ");
   disp("    Max relative L2 norm error is : " + max(Rel_Err));
-  disp("    Uniform grid size would be " + sprintf('%d×%d×%d : ', N, N, N));
+  disp("    Uniform grid size would be " + sprintf('%d×%d×%d ', N, N, N));
   disp("    ");
 end
 
