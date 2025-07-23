@@ -41,6 +41,7 @@ M = 2*N;
 xm = (xm-1/2)*2*rad;
 ym = 0*xm;
 zm = 0*xm;
+w0m = (1-0)/M*ones(M,1)*2*rad;
 %
 Rel_Err = zeros(mol.nao_nr,1);
 disp("=========Verify uniform grid error=======");
@@ -57,16 +58,21 @@ for i = 1:mol.nao_nr
   GTOivalM = real( ifft(FM,[M]) * (M/N) );
   %
   GTOivalM_ref = funci(xm,ym,zm,i);
+  % % 
+  % diff = abs(GTOivalM - GTOivalM_ref);
+  % % 
+  % Rel_Err(i) = max(diff(:))/max(max(abs(GTOivalM_ref(:))),1);
+  %
+  int2_Err = sqrt(sum((GTOivalM - GTOivalM_ref).^2.*w0m,'all'));
+  int2     = sqrt(sum((GTOivalM_ref).^2.*w0m,'all'));
   % 
-  diff = abs(GTOivalM - GTOivalM_ref);
-  % 
-  Rel_Err(i) = max(diff(:))/max(max(abs(GTOivalM_ref(:))),1);
+  Rel_Err(i) = int2_Err/max(int2,1);
   %
   disp("    " + i + "-th basis eval error is : " + Rel_Err(i));
 end
 disp("=========End of verifying uniform grid error=======");
 disp("    ");
-disp("    Max relative error is : " + max(Rel_Err));
+disp("    Max relative L2 norm error is : " + max(Rel_Err));
 
 
 keyboard
