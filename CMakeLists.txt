@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.15)
 project (cint C)
 set(cint_VERSION_MAJOR "6")
 set(cint_VERSION_MINOR "1")
-set(cint_VERSION_PATCH "1")
+set(cint_VERSION_PATCH "3")
 set(cint_VERSION_TWEAK "0")
 set(cint_VERSION "${cint_VERSION_MAJOR}.${cint_VERSION_MINOR}.${cint_VERSION_PATCH}")
 set(cint_SOVERSION "${cint_VERSION_MAJOR}")
@@ -36,7 +36,6 @@ endif()
 
 set(CMAKE_C_STANDARD 99)
 
-cmake_policy(SET CMP0042 NEW)
 include(GNUInstallDirs)
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -44,10 +43,6 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(QUADMATH)
 if(QUADMATH_FOUND)
   set(HAVE_QUADMATH_H 1 CACHE INTERNAL "Have QUADMATH")
-endif()
-
-if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.12)
-  cmake_policy(SET CMP0075 NEW)
 endif()
 
 include(CheckFunctionExists)
