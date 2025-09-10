@@ -9,7 +9,8 @@ version 6.1.1
   - treefun: if already cloned, run git submodule update --init --recursive
 
 * install: make (1st time need to run mkdir bin before make, this builds libcint matlab gateway function)
-
+  - mkdir bin
+  - gateway.mexmaca64/maci64/a64: in /libcint, run make -f makefile_nomex
   - bdmk: in ./utils/f/ folder, run make to build int2-bdmk-mlscf executable, you need to modify path to bdmk fortran source file
   - bdmk(deprecated): precompiled utils/bdmk_module.mexa64 on ubuntu (avx2?)
 

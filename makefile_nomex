@@ -9,17 +9,20 @@ ARCH := $(shell uname -m)
 ifeq ($(UNAME), Darwin)
 	CC = gcc-14
 	MWRAP = ~/mwrap/mwrap
+	MATLAB_ROOT = $(shell ls -d /Applications/MATLAB_R*.app | sort | tail -n1)
 	CINTDLIBRARY_NAME = libcint.dylib
 	NPHELPERDLIBRARY_NAME = libnp_helper.dylib
 	CGTODLIBRARY_NAME = libcgto.dylib
 	ifeq ($(ARCH), arm64)
-		MEX = /Applications/MATLAB_R2023b.app/bin/mex
+		MEX = $(MATLAB_ROOT)/bin/mex
+		OUTPUT_EXT = mexmaca64
 		LBLAS = -L/opt/homebrew/opt/openblas/lib -lopenblas
 		GCC_LIB_DIR = 
 		GCC_LIBS = -lgomp -lquadmath
 	else
 # using clang here...
-		MEX = /Applications/MATLAB_R2024b.app/bin/mex
+		MEX = $(MATLAB_ROOT)/bin/mex
+		OUTPUT_EXT = mexmaci64
 		LBLAS = -L/usr/local/opt/openblas/lib -lopenblas
 		GCC_LIB_DIR = /usr/local/opt/gcc/lib/gcc/current
 		GCC_LIBS = -L$(GCC_LIB_DIR) -lgomp -lquadmath $(GCC_LIB_DIR)/libgcc_s.1.1.dylib
@@ -29,6 +32,8 @@ ifeq ($(UNAME), Linux)
 CC = gcc
 MEX = mex
 MWRAP = ~/mwrap/mwrap
+MATLAB_ROOT = $(shell ls -d /usr/local/MATLAB/R* 2>/dev/null | sort | tail -n1)
+OUTPUT_EXT = mexa64
 LBLAS = -lopenblas
 GCC_LIBS = -lgomp -lquadmath
 CINTDLIBRARY_NAME = libcint.so
@@ -140,14 +145,14 @@ nomexfile: gateway.c $(BINARY_DIR)/cgto.o
 	$(CC) -shared -fPIC -fopenmp \
 	-Wno-implicit-function-declaration \
 	-DMATLAB_MEX_FILE -DMATLAB_DEFAULT_RELEASE=R2023b -DMX_COMPAT_32=0 \
-	-I/Applications/MATLAB_R2023b.app/extern/include \
+	-I$(MATLAB_ROOT)/extern/include \
 	-I$(ROOT_DIR) \
 	gateway.c $(BINARY_DIR)/cgto.o \
-	-L/Applications/MATLAB_R2023b.app/bin/maca64 -lmx -lmex -lmat -lm \
+	-L$(MATLAB_ROOT)/bin/maca64 -lmx -lmex -lmat -lm \
 	-L$(LIB_DIR) libcgto.a libcint.a \
 	-L/opt/homebrew/opt/openblas/lib -lopenblas -llapack \
 	-lstdc++ $(GCC_LIBS) \
-	-o gateway.mexmaca64
+	-o gateway.$(OUTPUT_EXT)
 
 clean:
 	rm -f $(BINARY_DIR)/*.o \
