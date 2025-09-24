@@ -5,17 +5,19 @@ EXEC = int2-bdmk
 UNAME := $(shell uname)
 ARCH := $(shell uname -m)
 
+SRC_DIR = ./
+
 # brew install hdf5
 ifeq ($(UNAME), Darwin)
 	HOST=osx
 	ifeq ($(ARCH), arm64)
 		OPENBLAS_DIR = /opt/homebrew/Cellar/openblas-singlethread/0.3.29/lib
-		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
+# 		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
 		HDF5_INCLUDE = -I/opt/homebrew/include
 		HDF5_DIR = /opt/homebrew/lib
 	else
 		OPENBLAS_DIR = /Users/hzhu1/git/OpenBLAS
-		SRC_DIR = /Users/hzhu1/Documents/Github/job/bdmkf
+# 		SRC_DIR = /Users/hzhu1/Documents/Github/job/bdmkf
 		HDF5_INCLUDE = -I/usr/local/include
 		HDF5_DIR = /usr/local/lib
 	endif
@@ -23,7 +25,7 @@ endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
 OPENBLAS_DIR = /home/linuxbrew/.linuxbrew/Cellar/openblas-singlethread/0.3.29/lib
-SRC_DIR = /home/hai/Documents/Github/job/bdmkf
+# SRC_DIR = /home/hai/Documents/Github/job/bdmkf
 HDF5_INCLUDE = -I/usr/include/hdf5/serial
 HDF5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/serial
 endif
@@ -71,35 +73,35 @@ endif
 SOURCES =  $(SRC_DIR)/bdmk_wrap.f90 \
   $(SRC_DIR)/bdmk.f \
   $(SRC_DIR)/boxfgt_md.f \
-  $(SRC_DIR)/src/besseljs3d.f \
-  $(SRC_DIR)/src/hank103.f \
-  $(SRC_DIR)/src/legeexps.f \
-  $(SRC_DIR)/src/chebexps.f \
-  $(SRC_DIR)/src/prini_new.f \
-  $(SRC_DIR)/src/fmmcommon2d.f \
-  $(SRC_DIR)/src/lapack_f77.f \
-  $(SRC_DIR)/src/cumsum.f \
-  $(SRC_DIR)/src/hkrand.f \
-  $(SRC_DIR)/src/dlaran.f \
-  $(SRC_DIR)/src/voltab2d.f \
-  $(SRC_DIR)/src/voltab3d.f \
-  $(SRC_DIR)/src/polytens.f \
-  $(SRC_DIR)/src/tree_data_routs.f \
-  $(SRC_DIR)/src/tensor_prod_routs.f \
-  $(SRC_DIR)/src/pts_tree.f \
-  $(SRC_DIR)/src/tree_routs.f \
-  $(SRC_DIR)/src/tree_vol_coeffs.f \
-  $(SRC_DIR)/src/dmk_routs.f \
-  $(SRC_DIR)/src/get_sognodes.f \
-  $(SRC_DIR)/src/l2dsognodes.f \
-  $(SRC_DIR)/src/l3dsognodes.f \
-  $(SRC_DIR)/src/sl3dsognodes.f \
-  $(SRC_DIR)/src/y2dsognodes.f \
-  $(SRC_DIR)/src/y3dsognodes.f \
-  $(SRC_DIR)/src/bdmk_local_tables.f \
-  $(SRC_DIR)/src/bdmk_local.f \
-  $(SRC_DIR)/src/bdmk_pwterms.f \
-  $(SRC_DIR)/src/bdmk_pwrouts.f
+  $(SRC_DIR)/besseljs3d.f \
+  $(SRC_DIR)/hank103.f \
+  $(SRC_DIR)/legeexps.f \
+  $(SRC_DIR)/chebexps.f \
+  $(SRC_DIR)/prini_new.f \
+  $(SRC_DIR)/fmmcommon2d.f \
+  $(SRC_DIR)/lapack_f77.f \
+  $(SRC_DIR)/cumsum.f \
+  $(SRC_DIR)/hkrand.f \
+  $(SRC_DIR)/dlaran.f \
+  $(SRC_DIR)/voltab2d.f \
+  $(SRC_DIR)/voltab3d.f \
+  $(SRC_DIR)/polytens.f \
+  $(SRC_DIR)/tree_data_routs.f \
+  $(SRC_DIR)/tensor_prod_routs.f \
+  $(SRC_DIR)/pts_tree.f \
+  $(SRC_DIR)/tree_routs.f \
+  $(SRC_DIR)/tree_vol_coeffs.f \
+  $(SRC_DIR)/dmk_routs.f \
+  $(SRC_DIR)/get_sognodes.f \
+  $(SRC_DIR)/l2dsognodes.f \
+  $(SRC_DIR)/l3dsognodes.f \
+  $(SRC_DIR)/sl3dsognodes.f \
+  $(SRC_DIR)/y2dsognodes.f \
+  $(SRC_DIR)/y3dsognodes.f \
+  $(SRC_DIR)/bdmk_local_tables.f \
+  $(SRC_DIR)/bdmk_local.f \
+  $(SRC_DIR)/bdmk_pwterms.f \
+  $(SRC_DIR)/bdmk_pwrouts.f
 
 ifeq ($(WITH_SECOND),1)
 SOURCES += $(SRC_DIR)/src/second-r8.f
