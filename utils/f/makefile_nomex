@@ -6,19 +6,21 @@ UNAME := $(shell uname)
 ARCH := $(shell uname -m)
 CC = gcc-14
 
+SRC_DIR = ./
+
 # brew install hdf5
 ifeq ($(UNAME), Darwin)
 	HOST=osx
 	MATLAB_ROOT = $(shell ls -d /Applications/MATLAB_R*.app | sort | tail -n1)
 	ifeq ($(ARCH), arm64)
 		OPENBLAS_DIR = /opt/homebrew/Cellar/openblas-singlethread/0.3.29/lib
-		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
+# 		SRC_DIR = /Users/hzhu/Documents/Github/job/bdmkf
 		HDF5_INCLUDE = -I/opt/homebrew/include
 		HDF5_DIR = /opt/homebrew/lib
 		GCC_LIBS = -lgomp
 	else
 		OPENBLAS_DIR = /Users/hzhu1/git/OpenBLAS
-		SRC_DIR = /Users/hzhu1/Documents/Github/job/bdmkf
+# 		SRC_DIR = /Users/hzhu1/Documents/Github/job/bdmkf
 		HDF5_INCLUDE = -I/usr/local/include
 		HDF5_DIR = /usr/local/lib
 	endif
@@ -26,7 +28,7 @@ endif
 ifeq ($(UNAME), Linux)
 HOST=linux-gfortran
 OPENBLAS_DIR = /home/linuxbrew/.linuxbrew/Cellar/openblas-singlethread/0.3.29/lib
-SRC_DIR = /home/hai/Documents/Github/job/bdmkf
+# SRC_DIR = /home/hai/Documents/Github/job/bdmkf
 HDF5_INCLUDE = -I/usr/include/hdf5/serial
 HDF5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/serial
 endif
